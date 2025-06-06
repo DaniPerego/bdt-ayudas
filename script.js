@@ -50,53 +50,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const timerTabs = document.querySelectorAll('.timer-tab');
     const timerSections = document.querySelectorAll('.timer-section');
 
-    // Función para actualizar el cronómetro
-    function updateStopwatch() {
-        if (isCountingUp) {
-            milliseconds += 10;
-        } else {
-            milliseconds = Math.max(0, milliseconds - 10);
-            if (milliseconds === 0) {
-                stopStopwatch();
-                playTimerEndSound();
-            }
-        }
-
-        const hours = Math.floor(milliseconds / 3600000);
-        const minutes = Math.floor((milliseconds % 3600000) / 60000);
-        const seconds = Math.floor((milliseconds % 60000) / 1000);
-        const ms = Math.floor((milliseconds % 1000) / 10);
-
-        stopwatchDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
-    }
-
-    // Función para iniciar/pausar el cronómetro
-    function toggleStopwatch() {
-        if (!isRunning) {
-            if (!isCountingUp && milliseconds === 0) {
-                milliseconds = countdownTime;
-            }
-            stopwatchInterval = setInterval(updateStopwatch, 10);
-            startButton.textContent = 'Pausar';
-            isRunning = true;
-        } else {
+function updateStopwatch() {
+    let elapsedTime;
+    if (isCountingUp) {
+        elapsedTime = Date.now() - startTime; // Calcular el tiempo transcurrido
+    } else {
+        elapsedTime = countdownTime - (Date.now() - startTime);
+        if (elapsedTime < 0) {
+            elapsedTime = 0;
             stopStopwatch();
+            playTimerEndSound();
         }
     }
 
-    // Función para detener el cronómetro
-    function stopStopwatch() {
-        clearInterval(stopwatchInterval);
-        startButton.textContent = 'Iniciar';
-        isRunning = false;
-    }
+    const hours = Math.floor(elapsedTime / 3600000) || 0;
+    const minutes = Math.floor((elapsedTime % 3600000) / 60000) || 0;
+    const seconds = Math.floor((elapsedTime % 60000) / 1000) || 0;
+    const ms = Math.floor(elapsedTime % 1000) || 0;
 
-    // Función para resetear el cronómetro
-    function resetStopwatch() {
+    stopwatchDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
+}
+
+function toggleStopwatch() {
+    if (!isRunning) {
+        startTime = Date.now(); // Establecer el tiempo de inicio
+        stopwatchInterval = setInterval(updateStopwatch, 10);
+        startButton.textContent = 'Pausar';
+        isRunning = true;
+    } else {
         stopStopwatch();
-        milliseconds = 0;
-        updateStopwatch();
     }
+}
+
+function stopStopwatch() {
+    clearInterval(stopwatchInterval);
+    startButton.textContent = 'Iniciar';
+    isRunning = false;
+}
+
+function resetStopwatch() {
+    stopStopwatch();
+    if (isCountingUp) {
+        milliseconds = 0;
+    }
+    updateStopwatch();
+    stopwatchDisplay.textContent = "00:00:00.000";
+}
 
     // Función para crear un beep
     function createBeep(frequency, volume, duration) {
