@@ -335,3 +335,42 @@ function resetStopwatch() {
     updateStopwatch();
     updateTabataDisplay();
 }); 
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para calcular la repetición máxima
+    const calculateButton = document.getElementById('calculate');
+    const exerciseSelect = document.getElementById('exercise');
+    const weightInput = document.getElementById('weight');
+    const resultElement = document.getElementById('result');
+
+    if (!calculateButton || !exerciseSelect || !weightInput || !resultElement) {
+        console.error('Uno o más elementos necesarios para la calculadora de RM no se encontraron en el DOM.');
+        return;
+    }
+
+    calculateButton.addEventListener('click', calculateRM);
+
+    function calculateRM() {
+        const weight = parseFloat(weightInput.value);
+        const selectedExercise = exerciseSelect.value;
+
+        if (isNaN(weight) || weight <= 0) {
+            resultElement.textContent = 'Por favor, introduce un peso válido.';
+            return;
+        }
+
+        if (!selectedExercise) {
+            resultElement.textContent = 'Por favor, selecciona un ejercicio.';
+            return;
+        }
+
+        let percentages = '';
+        let percentage = 95;
+        while (percentage >= 30) {
+            percentages += `${percentage}%: ${(weight * (percentage / 100)).toFixed(2)} kg\n`;
+            percentage -= 5;
+        }
+
+        resultElement.textContent = percentages;
+    }
+});
