@@ -1,0 +1,8 @@
+{
+    "liveServer.settings.donotShowInfoMsg": true,
+    "liveServer.settings.donotVerifyTags": true,
+    "javascript.inlayHints.functionLikeReturnTypes": false,
+    "javascript.validate.enable": false,
+    "javascript.suggestionActions.enabled": false,
+    "liveServer.settings.port": 5501
+} 
