@@ -315,6 +315,8 @@ function resetStopwatch() {
         });
     }
 
+    
+    
     // Cambio de pestañas
     timerTabs.forEach(tab => {
         tab.addEventListener('click', () => {
