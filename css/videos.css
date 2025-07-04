@@ -1,87 +1,31 @@
-.videos-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 4px;
-}
-
 .videos {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Ajustar el tamaño mínimo para permitir 4 columnas */
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px; /* Limitar el ancho máximo del grid */
+  margin: 0 auto; /* Centrar el grid horizontalmente */
+  place-items: center; /* Centrar los items vertical y horizontalmente */
+}
+
+.video {
   text-align: center;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  margin: 4px;
-  width: 100%;
-  box-sizing: border-box;
+  background-color: #f9f9f9; /* Fondo claro para los videos */
+  padding: 15px; /* Aumentar el padding para más espacio */
+  border-radius: 10px; /* Aumentar el border-radius para esquinas más redondeadas */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Aumentar la sombra para un efecto más pronunciado */
 }
 
-.videos-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  width: 100%;
-  justify-content: center;
-  align-items: start;
+.video h3 {
+  margin-bottom: 10px;
+  font-size: 1.3em; /* Aumentar el tamaño de la fuente del título */
+  color: #333;
 }
 
-.video-card {
-  border-radius: 4px;
-  place-content: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  background-color: rgba(73, 73, 73, 0.5);
-  transition: background-color 0.5s;
+.video iframe {
   width: 100%;
-  box-sizing: border-box;
-}
-
-.video-card:hover {
-  transform: translateY(-5px);
-  background: rgba(73, 73, 73, 0.7);
-}
-
-.video-wrapper {
-  width: 100%;
-  position: relative;
-  padding-top: 56.25%;
-}
-
-.video-wrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  height: auto;
   border: none;
-  border-radius: 4px;
-}
-
-/* Responsive breakpoints */
-@media (max-width: 1200px) {
-  .videos {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .videos {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .videos {
-    grid-template-columns: 1fr;
-  }
-  
-  .videos p {
-    font-size: 18px;
-    padding: 5px;
-  }
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
