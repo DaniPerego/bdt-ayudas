@@ -1,0 +1,75 @@
+
+const videos = [
+  { nombre: "Sentadilla", url: "https://www.youtube.com/embed/0pkjOk0EiAk?si=w4cIw-gpjqq3z3ct" },
+  { nombre: "Peso muerto", url: "https://www.youtube.com/embed/rMvwVtlqjTE?si=-nQ00r8PXdoPTEjO" },
+  { nombre: "Press de banca", url: "https://www.youtube.com/embed/1ZXobu7JvvE?si=bjYRANwGdUR2ULb0" },
+  { nombre: "Clean", url: "https://www.youtube.com/embed/5yWaNOvgFCM?si=rxZni8i6XlfFjmzt" },
+  { nombre: "Snatch", url: "https://www.youtube.com/embed/ivDB23Kcv-A?si=g31a4PWxokoPTMc1" },
+  { nombre: "Push Press", url: "https://www.youtube.com/embed/P0iuN0xygc0?si=gUWlLKZcVqnBOb2C" },
+  { nombre: "Thruster", url: "https://www.youtube.com/embed/uha4orxDqSM?si=w12_oIE7cJHHDSv6" },
+  { nombre: "Overhead Squat", url: "https://www.youtube.com/embed/uYumuL_G_V0?si=zChzLAkEFXhNZEHh" },
+  { nombre: "Front Squat", url: "https://www.youtube.com/embed/QdCzafAXJhY?si=zv45fCTyUukXYncH" },
+  { nombre: "Back Squat", url: "https://www.youtube.com/embed/gh55vVlwlQg?si=PKSftcVDyWHO-xlb" },
+  { nombre: "Push Jerk", url: "https://www.youtube.com/embed/0wDEO6shVjc?si=ZtGDcX8H_DpxUL0Y" },
+  { nombre: "Split Jerk", url: "https://www.youtube.com/embed/_-9_46by2JI?si=OyiZ4OSuNNb0Fxxk" },
+  { nombre: "Bench Press", url: "https://www.youtube.com/embed/iaBVSJm78ko?si=o6zj0cqBObfV3INS" },
+  { nombre: "Deadlift", url: "https://www.youtube.com/embed/KVGhkHSrDJo?si=Mi4iGkJHTWWyr1wa" },
+  { nombre: "Sumo Deadlift High Pull", url: "https://www.youtube.com/embed/fxfhQMbATCw?si=e0sWFiE_02whp07u" },
+  { nombre: "Power Clean", url: "https://www.youtube.com/embed/qeGS55RHBUU?si=IV_3jb_UyGzThfFm" },
+  { nombre: "Hang Power Clean", url: "https://www.youtube.com/embed/L219ltL15zk?si=MHW81_-rkyXJa_8A" },
+  { nombre: "Hang Power Snatch", url: "https://www.youtube.com/embed/saYKvqSscuY?si=h_4w8zXeHU5PvVoP" },
+  { nombre: "Push Up", url: "https://www.youtube.com/embed/Ewf8rqGRbrE?si=nOk4dSYaOn-xelT3" },
+  { nombre: "Pull Up", url: "https://www.youtube.com/embed/QmZAiBqPvZw?si=pC1RIaeQGFRmyyY4" },
+  { nombre: "Bar Muscle Up", url: "https://www.youtube.com/embed/EznLCDBAPIU?si=zjE_OSZYD0AzSn3K" },
+  { nombre: "Ring Muscle Up", url: "https://www.youtube.com/embed/vJTJFc2wmk4?si=xohbgeLn7CPx4z5B" },
+  { nombre: "Toes to Bar", url: "https://www.youtube.com/embed/DlhojghkaQ0?si=M5yJ7TiHKMTZbb9H" },
+  { nombre: "Kipping Pull Up", url: "https://www.youtube.com/embed/SCVCLChPQFY?si=7eqEtVwnq__NlwLD" },
+  { nombre: "Butterfly Pull Up", url: "https://www.youtube.com/embed/Ty14ogq_Vok?si=Xe_MRFTlgVo4rZgZ" },
+  { nombre: "Chest to Bar", url: "https://www.youtube.com/embed/k9W6g9LvXDI?si=953VnN540qZAUM_B" },
+  { nombre: "Double Under", url: "https://www.youtube.com/embed/sEAOZc77wk8?si=oFR1BSX8vHLRVEA_" },
+  { nombre: "Box Jump", url: "https://www.youtube.com/embed/M6_nkTKhaFY?si=Rwd5mFUSq9KA1-Y6" },
+  { nombre: "Wall Ball", url: "https://www.youtube.com/embed/tTnvKzRLCUk?si=ztsLHUj-tKFVkOnH" },
+  { nombre: "Row", url: "https://www.youtube.com/embed/oFwt7WfnPcc?si=8KYhDcSAUbQXWUIz" },
+  { nombre: "Bike", url: "https://www.youtube.com/embed/GhxhiehJcQY?si=7yvs_oU0S3a_oXVd" },
+  { nombre: "Burpee", url: "https://www.youtube.com/embed/TL8SMp7RdXQ?si=NGq_8tA9EC-Sig1y" },
+  { nombre: "Sit Up", url: "https://www.youtube.com/embed/azumEfnk-GI?si=ShA-zKlw3OZjGDXS" },
+  { nombre: "Russian Twist", url: "https://www.youtube.com/embed/VIZX2Ru9qU8?si=5R7bwVgtxF7hrsMF" }
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+  const contenedor = document.getElementById('videos_ejercicios');
+  videos.forEach((video, i) => {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    card.innerHTML = `
+      <div class="video-title" data-index="${i}">${video.nombre}</div>
+      <div class="video-frame"></div>
+    `;
+    contenedor.appendChild(card);
+  });
+
+  contenedor.addEventListener('click', function(e) {
+    if (e.target.classList.contains('video-title')) {
+      const card = e.target.parentElement;
+      const frame = card.querySelector('.video-frame');
+      card.classList.toggle('active');
+      // Solo crea el iframe si no existe
+      if (card.classList.contains('active') && frame.childElementCount === 0) {
+        const idx = e.target.getAttribute('data-index');
+        frame.innerHTML = `<iframe width="329" height="184.91" src="${videos[idx].url}" frameborder="0" allowfullscreen></iframe>`;
+      }
+      // Si se cierra, puedes limpiar el contenido para liberar memoria (opcional)
+      if (!card.classList.contains('active')) {
+        frame.innerHTML = '';
+      }
+    }
+  });
+});
+
+
+contenedor.addEventListener('click', function(e) {
+  if (e.target.classList.contains('video-title')) {
+    const card = e.target.parentElement;
+    card.classList.toggle('active');
+  }
+});

@@ -207,6 +207,16 @@
     font-family: monospace;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
+.music-section .playlist-selector{
+    padding: 2rem;
+    border-radius: 10px;
+    margin: 2rem auto;
+    align-items: center;
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: rgba(40, 40, 40, 0.65); /* Más translúcido */
+    color: #fff;
+    border: none;
+}
 
 .tabata-round {
     font-size: 1.5rem;
