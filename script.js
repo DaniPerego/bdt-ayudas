@@ -376,3 +376,16 @@ document.addEventListener('DOMContentLoaded', function() {
         resultElement.textContent = percentages;
     }
 });
+
+// Reloj en tiempo real
+function updateClock() {
+    const clock = document.getElementById('clock');
+    if (!clock) return;
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const s = now.getSeconds().toString().padStart(2, '0');
+    clock.textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
