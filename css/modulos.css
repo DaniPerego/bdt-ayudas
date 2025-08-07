@@ -86,11 +86,12 @@
 } */
 
   /* HORARIOS*/
-  .horarios {
+ .horarios {
     display: grid;
     grid-template-columns: minmax(100px, 1fr) 1fr;
-    gap: 4px;
-    margin: 4px;
+    gap: 4px;      /* Igual que .modulos */
+    margin: 4px;   /* Igual que .modulos */
+    padding: 0;    /* Sin padding extra */
 }
 
 .horarios .tool-card {
@@ -109,7 +110,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     margin-bottom: 0;
 }
-  /* Ajustes responsivos */
+ /*  Ajustes responsivos 
   @media (max-width: 768px) {
     .modulos p, .horarios p {
         font-size: 18px;
@@ -119,4 +120,4 @@
     .modulos, .horarios {
         font-size: 20px;
     }
-  }
+  } */
