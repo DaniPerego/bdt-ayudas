@@ -9,6 +9,8 @@
   }
   
   /*section modulos*/
+
+
   .modulos {
     font-family: var(--font-heading);
     font-weight: 700;
@@ -16,7 +18,7 @@
     text-align: center;
     display: grid;
     grid-template-columns: minmax(100px, 1fr) 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr ;
     gap: 4px;
     margin: 4px;
   }
@@ -78,6 +80,34 @@
     background-attachment: fixed;
   
   }
+/* 
+ .tool-card {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    align-items: center;
+    justify-items: center;
+    height: 100%;
+}
+
+.tool-button {
+    width: 180px;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    background: #2c2c2c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
+    transition: background 0.3s;
+    margin-top: 10px;
+    margin-bottom: 0;
+    /* Elimina margin auto para que el grid lo centre */
+}
+
+.tool-button:hover {
+    background: #444;
+} */
 
   /* HORARIOS*/
 .horarios {

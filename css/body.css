@@ -180,59 +180,6 @@ h2 {
     }
 }
 
-/* Estilos para el footer */
-.footer-distributed {
-    background-color: #292c2f;
-    color: white;
-    text-align: left;
-    padding: 50px 50px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.footer-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.footer-left, .footer-center, .footer-right {
-    display: flex;
-    flex-direction: column;
-}
-
-.footer-left h3 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.footer-links a {
-    color: white;
-    text-decoration: none;
-    margin: 0 10px;
-}
-
-.footer-company-name {
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.footer-center i {
-    margin-right: 10px;
-}
-
-.footer-company-about {
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.footer-icons a {
-    color: white;
-    margin-right: 10px;
-    font-size: 20px;
-}
 
 /* carrusel */
 html, body {
