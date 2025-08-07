@@ -173,6 +173,12 @@
     font-family: monospace;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
+.timer-mode {
+    color: white;
+    font-size: 18px;
+    font-family: monospace;
+}
+
 
 /* Estilos específicos para Tabata */
 .tabata-display {
