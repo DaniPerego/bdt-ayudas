@@ -338,7 +338,7 @@ function resetStopwatch() {
     updateTabataDisplay();
 }); 
 
-/* document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Función para calcular la repetición máxima
     const calculateButton = document.getElementById('calculate');
     const exerciseSelect = document.getElementById('exercise');
@@ -357,51 +357,27 @@ function resetStopwatch() {
         const selectedExercise = exerciseSelect.value;
 
         if (isNaN(weight) || weight <= 0) {
-            resultElement.textContent = 'Por favor, introduce un peso válido.';
+            resultElement.innerHTML = '<div style="text-align:center;">Por favor, introduce un peso válido.</div>';
             return;
         }
 
         if (!selectedExercise) {
-            resultElement.textContent = 'Por favor, selecciona un ejercicio.';
+            resultElement.innerHTML = '<div style="text-align:center;">Por favor, selecciona un ejercicio.</div>';
             return;
         }
 
         let percentages = '';
         let percentage = 95;
         while (percentage >= 30) {
-            percentages += `${percentage}%: ${(weight * (percentage / 100)).toFixed(2)} kg\n`;
+            percentages += `<div style="text-align:center;">${percentage}%: ${(weight * (percentage / 100)).toFixed(2)} kg</div>`;
             percentage -= 5;
         }
 
-        resultElement.textContent = percentages;
+        resultElement.innerHTML = percentages;
     }
-}); */
-// Calculadora de RM
-  const weightInput = document.getElementById('weight');
-  const exerciseSelect = document.getElementById('exercise');
-  const calculateButton = document.getElementById('calculate');
-  const resultElement = document.getElementById('result');
-  
-  function calculateRM() {
-    const weight = parseFloat(weightInput.value);
-    const selectedExercise = exerciseSelect.value;
-  
-    if (weight && selectedExercise) {
-      let percentages = '';
-      let percentage = 95;
-  
-      while (percentage >= 30) {
-        const rm = weight * (percentage / 100);
-        percentages += `${percentage}%: ${rm.toFixed(2)}kg<br>`;
-        percentage -= 5;
-      }
-  
-      resultElement.innerHTML = `Porcentajes de RM para ${selectedExercise}:<br>${percentages}`;
-    } else {
-      resultElement.textContent = 'Por favor, ingresa el peso y selecciona un ejercicio.';
-    }
-  }
-  calculateButton.addEventListener('click', calculateRM);
+}); 
+
+
 // Reloj en tiempo real
 function updateClock() {
     const clock = document.getElementById('clock');
