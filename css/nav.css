@@ -10,7 +10,7 @@
 .nav_logo {
     font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 30px;
+    font-size: 23px;
     color: var(--color-blanco);
     animation-name: left-to-right;
     animation-duration: 2s;
@@ -26,7 +26,7 @@
 }
 
 .nav_logo span p {
-    font-size: 20px;
+    font-size: 15px;
     margin-top: auto;
 }
 
