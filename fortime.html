@@ -42,6 +42,8 @@
         <div class="timer-controls">
             <button class="timer-tab active" data-timer="stopwatch">Cronómetro</button>
             <button class="timer-tab" data-timer="tabata">Tabata</button>
+            <button class="timer-tab" data-timer="emom">EMOM</button>
+            <button class="timer-tab" data-timer="amrap">AMRAP</button>
             <button id="sound-toggle" class="sound-toggle" title="Activar/Desactivar sonido">
                 <i class="bi bi-volume-up-fill"></i>
             </button>
@@ -52,12 +54,52 @@
             <div class="timer-section active" id="stopwatch-section">
                 <h2>Cronómetro</h2>
                 <div class="timer-config">
-                    <div class="time-input">
-                        <input type="number" id="hours" min="0" max="23" value="0" class="time-field">
-                        <span>:</span>
-                        <input type="number" id="minutes" min="0" max="59" value="0" class="time-field">
-                        <span>:</span>
-                        <input type="number" id="seconds" min="0" max="59" value="0" class="time-field">
+                    <div class="time-picker">
+                      <select id="hours" class="time-field">
+                        <!-- Opciones de 0 a 23 -->
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8">08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                      </select>
+                      :
+                      <select id="minutes" class="time-field">
+                        <!-- Opciones de 0 a 59 -->
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <!-- ...hasta 59... -->
+                        <option value="59">59</option>
+                      </select>
+                      :
+                      <select id="seconds" class="time-field">
+                        <!-- Opciones de 0 a 59 -->
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <!-- ...hasta 59... -->
+                        <option value="59">59</option>
+                      </select>
                     </div>
                     <div class="timer-mode">
                         <label>
@@ -96,6 +138,44 @@
                 <div class="timer-buttons">
                     <button id="tabata-start" class="timer-button">Iniciar</button>
                     <button id="tabata-reset" class="timer-button">Reiniciar</button>
+                </div>
+            </div>
+
+            <!-- EMOM -->
+            <div class="timer-section" id="emom-section">
+                <h2>EMOM</h2>
+                <div class="emom-config">
+                    <label>Minutos totales:
+                        <input type="number" id="emom-minutes" min="1" max="60" value="10" class="time-field">
+                    </label>
+                    <label>Segundos por ronda:
+                        <input type="number" id="emom-seconds" min="0" max="59" value="0" class="time-field">
+                    </label>
+                </div>
+                <div class="emom-display">
+                    <div id="emom-time" class="tabata-time">00:00</div>
+                    <div id="emom-round" class="tabata-round">Ronda: 0</div>
+                </div>
+                <div class="timer-buttons">
+                    <button id="emom-start" class="timer-button">Iniciar</button>
+                    <button id="emom-reset" class="timer-button">Reiniciar</button>
+                </div>
+            </div>
+
+            <!-- AMRAP -->
+            <div class="timer-section" id="amrap-section">
+                <h2>AMRAP</h2>
+                <div class="amrap-config">
+                    <label>Minutos totales:
+                        <input type="number" id="amrap-minutes" min="1" max="120" value="20" class="time-field">
+                    </label>
+                </div>
+                <div class="amrap-display">
+                    <div id="amrap-time" class="tabata-time">00:00</div>
+                </div>
+                <div class="timer-buttons">
+                    <button id="amrap-start" class="timer-button">Iniciar</button>
+                    <button id="amrap-reset" class="timer-button">Reiniciar</button>
                 </div>
             </div>
         </div>

@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function playEndSound() { createBeep(880, 0.3, 0.2); }
 
     function getSelectedTimeMs() {
-        const h = parseInt(hoursInput?.value) || 0;
-        const m = parseInt(minutesInput?.value) || 0;
-        const s = parseInt(secondsInput?.value) || 0;
+        const h = parseInt(document.getElementById('hours').value) || 0;
+        const m = parseInt(document.getElementById('minutes').value) || 0;
+        const s = parseInt(document.getElementById('seconds').value) || 0;
         return (h * 3600 + m * 60 + s) * 1000;
     }
 
@@ -356,6 +356,151 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ----------- INICIALIZACIONES -----------
     updateTabataDisplay();
+
+    // ----------- EMOM -----------
+    let emomInterval = null;
+    let isEmomRunning = false;
+    let emomTotalRounds = 0;
+    let emomCurrentRound = 0;
+    let emomTimePerRound = 0;
+    let emomTimeLeft = 0;
+
+    const emomMinutesInput = document.getElementById('emom-minutes');
+    const emomSecondsInput = document.getElementById('emom-seconds');
+    const emomTimeDisplay = document.getElementById('emom-time');
+    const emomRoundDisplay = document.getElementById('emom-round');
+    const emomStartButton = document.getElementById('emom-start');
+    const emomResetButton = document.getElementById('emom-reset');
+
+    function formatMMSS(totalSeconds) {
+        const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const s = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function updateEmomDisplay() {
+        if (emomTimeDisplay) emomTimeDisplay.textContent = formatMMSS(emomTimeLeft);
+        if (emomRoundDisplay) emomRoundDisplay.textContent = `Ronda: ${emomCurrentRound}/${emomTotalRounds}`;
+    }
+
+    function startEmom() {
+        if (isEmomRunning) return;
+        isEmomRunning = true;
+        if (emomStartButton) emomStartButton.textContent = 'Pausar';
+
+        const totalMinutes = parseInt(emomMinutesInput.value) || 1;
+        const secondsPerRound = parseInt(emomSecondsInput.value) || 0;
+        emomTotalRounds = totalMinutes;
+        emomCurrentRound = 1;
+        emomTimePerRound = 60 + secondsPerRound; // 1 minuto + segundos extra
+        emomTimeLeft = emomTimePerRound;
+
+        updateEmomDisplay();
+        playStartSound();
+
+        emomInterval = setInterval(() => {
+            emomTimeLeft--;
+            updateEmomDisplay();
+
+            if (emomTimeLeft === 0) {
+                playEndSound();
+                if (emomCurrentRound < emomTotalRounds) {
+                    emomCurrentRound++;
+                    emomTimeLeft = emomTimePerRound;
+                    playStartSound();
+                } else {
+                    stopEmom();
+                }
+            }
+        }, 1000);
+    }
+
+    function stopEmom() {
+        clearInterval(emomInterval);
+        isEmomRunning = false;
+        if (emomStartButton) emomStartButton.textContent = 'Iniciar';
+    }
+
+    function resetEmom() {
+        stopEmom();
+        emomCurrentRound = 0;
+        emomTimeLeft = 0;
+        updateEmomDisplay();
+    }
+
+    if (emomStartButton) {
+        emomStartButton.addEventListener('click', function() {
+            if (isEmomRunning) {
+                stopEmom();
+            } else {
+                startEmom();
+            }
+        });
+    }
+    if (emomResetButton) {
+        emomResetButton.addEventListener('click', resetEmom);
+    }
+
+    // ----------- AMRAP -----------
+    let amrapInterval = null;
+    let isAmrapRunning = false;
+    let amrapTimeLeft = 0;
+
+    const amrapMinutesInput = document.getElementById('amrap-minutes');
+    const amrapTimeDisplay = document.getElementById('amrap-time');
+    const amrapStartButton = document.getElementById('amrap-start');
+    const amrapResetButton = document.getElementById('amrap-reset');
+
+    function updateAmrapDisplay() {
+        if (amrapTimeDisplay) amrapTimeDisplay.textContent = formatMMSS(amrapTimeLeft);
+    }
+
+    function startAmrap() {
+        if (isAmrapRunning) return;
+        isAmrapRunning = true;
+        if (amrapStartButton) amrapStartButton.textContent = 'Pausar';
+
+        const totalMinutes = parseInt(amrapMinutesInput.value) || 1;
+        amrapTimeLeft = totalMinutes * 60;
+
+        updateAmrapDisplay();
+        playStartSound();
+
+        amrapInterval = setInterval(() => {
+            amrapTimeLeft--;
+            updateAmrapDisplay();
+
+            if (amrapTimeLeft === 0) {
+                playEndSound();
+                stopAmrap();
+            }
+        }, 1000);
+    }
+
+    function stopAmrap() {
+        clearInterval(amrapInterval);
+        isAmrapRunning = false;
+        if (amrapStartButton) amrapStartButton.textContent = 'Iniciar';
+    }
+
+    function resetAmrap() {
+        stopAmrap();
+        amrapTimeLeft = 0;
+        updateAmrapDisplay();
+    }
+
+    if (amrapStartButton) {
+        amrapStartButton.addEventListener('click', function() {
+            if (isAmrapRunning) {
+                stopAmrap();
+            } else {
+                startAmrap();
+            }
+        });
+    }
+    if (amrapResetButton) {
+        amrapResetButton.addEventListener('click', resetAmrap);
+    }
 });
 
 // Reloj en tiempo real
