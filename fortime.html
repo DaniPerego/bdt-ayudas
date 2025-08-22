@@ -54,53 +54,7 @@
             <div class="timer-section active" id="stopwatch-section">
                 <h2>Cronómetro</h2>
                 <div class="timer-config">
-                    <div class="time-picker">
-                      <select id="hours" class="time-field">
-                        <!-- Opciones de 0 a 23 -->
-                        <option value="0">00</option>
-                        <option value="1">01</option>
-                        <option value="2">02</option>
-                        <option value="3">03</option>
-                        <option value="4">04</option>
-                        <option value="5">05</option>
-                        <option value="6">06</option>
-                        <option value="7">07</option>
-                        <option value="8">08</option>
-                        <option value="9">09</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                        <option value="13">13</option>
-                        <option value="14">14</option>
-                        <option value="15">15</option>
-                        <option value="16">16</option>
-                        <option value="17">17</option>
-                        <option value="18">18</option>
-                        <option value="19">19</option>
-                        <option value="20">20</option>
-                        <option value="21">21</option>
-                        <option value="22">22</option>
-                        <option value="23">23</option>
-                      </select>
-                      :
-                      <select id="minutes" class="time-field">
-                        <!-- Opciones de 0 a 59 -->
-                        <option value="0">00</option>
-                        <option value="1">01</option>
-                        <option value="2">02</option>
-                        <!-- ...hasta 59... -->
-                        <option value="59">59</option>
-                      </select>
-                      :
-                      <select id="seconds" class="time-field">
-                        <!-- Opciones de 0 a 59 -->
-                        <option value="0">00</option>
-                        <option value="1">01</option>
-                        <option value="2">02</option>
-                        <!-- ...hasta 59... -->
-                        <option value="59">59</option>
-                      </select>
-                    </div>
+                    <div class="time-picker" id="for-time-picker"></div>
                     <div class="timer-mode">
                         <label>
                             <input type="radio" name="timer-mode" value="up" checked> Prograsiva
@@ -152,6 +106,7 @@
                         <input type="number" id="emom-seconds" min="0" max="59" value="0" class="time-field">
                     </label>
                 </div>
+                <div class="time-picker" id="emom-time-picker"></div>
                 <div class="emom-display">
                     <div id="emom-time" class="tabata-time">00:00</div>
                     <div id="emom-round" class="tabata-round">Ronda: 0</div>
@@ -170,6 +125,7 @@
                         <input type="number" id="amrap-minutes" min="1" max="120" value="20" class="time-field">
                     </label>
                 </div>
+                <div class="time-picker" id="amrap-time-picker"></div>
                 <div class="amrap-display">
                     <div id="amrap-time" class="tabata-time">00:00</div>
                 </div>

@@ -501,6 +501,72 @@ document.addEventListener('DOMContentLoaded', function() {
     if (amrapResetButton) {
         amrapResetButton.addEventListener('click', resetAmrap);
     }
+
+    // ----------- CREACIÓN DE SELECTORES DE TIEMPO -----------
+    function createTimePicker(containerId, opts = {}) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        // Opciones por defecto
+        const {
+            showHours = true,
+            showMinutes = true,
+            showSeconds = true,
+            hoursId = 'hours',
+            minutesId = 'minutes',
+            secondsId = 'seconds'
+        } = opts;
+
+        let html = '';
+
+        if (showHours) {
+            html += `<select id="${hoursId}" class="time-field">`;
+            for (let i = 0; i < 24; i++) {
+                html += `<option value="${i}">${i.toString().padStart(2, '0')}</option>`;
+            }
+            html += `</select> : `;
+        }
+        if (showMinutes) {
+            html += `<select id="${minutesId}" class="time-field">`;
+            for (let i = 0; i < 60; i++) {
+                html += `<option value="${i}">${i.toString().padStart(2, '0')}</option>`;
+            }
+            html += `</select> : `;
+        }
+        if (showSeconds) {
+            html += `<select id="${secondsId}" class="time-field">`;
+            for (let i = 0; i < 60; i++) {
+                html += `<option value="${i}">${i.toString().padStart(2, '0')}</option>`;
+            }
+            html += `</select>`;
+        }
+
+        container.innerHTML = html.replace(/: $/, ''); // Quita el último ": " si no hay segundos
+    }
+
+    // Ejemplo de uso para el cronómetro principal:
+    createTimePicker('for-time-picker', {
+        hoursId: 'hours',
+        minutesId: 'minutes',
+        secondsId: 'seconds'
+    });
+
+    // Para EMOM (solo minutos y segundos, por ejemplo)
+    createTimePicker('emom-time-picker', {
+        showHours: false,
+        showMinutes: true,
+        showSeconds: true,
+        minutesId: 'emom-minutes',
+        secondsId: 'emom-seconds'
+    });
+
+    // Para AMRAP (solo minutos)
+    createTimePicker('amrap-time-picker', {
+        showHours: false,
+        showMinutes: true,
+        showSeconds: false,
+        minutesId: 'amrap-minutes'
+    });
 });
 
 // Reloj en tiempo real
