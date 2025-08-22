@@ -49,6 +49,7 @@
     display: none;
 }
 
+
 /* Estilos para pantallas pequeñas (hasta 768px) */
 @media (max-width: 768px) {
     .nav_items {
@@ -103,3 +104,6 @@
         transform: translateX(0) !important;
     }
 } 
+.nav_items.open {
+    z-index: 2000;
+}

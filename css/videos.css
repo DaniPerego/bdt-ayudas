@@ -54,3 +54,7 @@
   max-height: 400px; /* Ajusta según el alto del video */
   padding: 16px;
 }
+.videos, .tool-card {
+    position: relative;
+    z-index: 1;
+}
