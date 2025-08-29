@@ -567,6 +567,32 @@ document.addEventListener('DOMContentLoaded', function() {
         showSeconds: false,
         minutesId: 'amrap-minutes'
     });
+
+    // ----------- BUSCADOR DE EJERCICIOS -----------
+    // Para ejercicios (ajusta el selector según tu estructura)
+    const buscadorEjercicios = document.getElementById('buscador-ejercicios');
+    if (buscadorEjercicios) {
+        buscadorEjercicios.addEventListener('input', function() {
+            const filtro = this.value.toLowerCase();
+            document.querySelectorAll('.video-card').forEach(card => {
+                const texto = card.textContent.toLowerCase();
+                card.style.display = texto.includes(filtro) ? '' : 'none';
+            });
+        });
+    }
+
+    // ----------- BUSCADOR DE DICCIONARIO -----------
+    // Para diccionario
+    const buscadorDiccionario = document.getElementById('buscador-diccionario');
+    if (buscadorDiccionario) {
+        buscadorDiccionario.addEventListener('input', function() {
+            const filtro = this.value.toLowerCase();
+            document.querySelectorAll('.diccionario-item').forEach(item => {
+                const texto = item.textContent.toLowerCase();
+                item.style.display = texto.includes(filtro) ? '' : 'none';
+            });
+        });
+    }
 });
 
 // Reloj en tiempo real
