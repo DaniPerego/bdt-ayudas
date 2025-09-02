@@ -593,6 +593,68 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // ----------- CARRUSEL -----------
+    const slides = document.querySelectorAll('.carrusel-slide');
+    const prevBtn = document.getElementById('carrusel-prev');
+    const nextBtn = document.getElementById('carrusel-next');
+    let current = 0;
+
+    function showSlide(idx) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === idx);
+        });
+    }
+
+    function nextSlide() {
+        current = (current + 1) % slides.length;
+        showSlide(current);
+    }
+
+    function prevSlide() {
+        current = (current - 1 + slides.length) % slides.length;
+        showSlide(current);
+    }
+
+    if (nextBtn && prevBtn) {
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+    }
+
+    // Auto-carrusel cada 6 segundos
+    setInterval(nextSlide, 6000);
+
+    const banners = document.querySelectorAll('.carrusel-banner');
+    banners.forEach(function(banner) {
+        const slides = banner.querySelectorAll('.carrusel-slide');
+        const prevBtn = banner.querySelector('.carrusel-btn.prev');
+        const nextBtn = banner.querySelector('.carrusel-btn.next');
+        let current = 0;
+
+        function showSlide(idx) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === idx);
+            });
+        }
+
+        function nextSlide() {
+            current = (current + 1) % slides.length;
+            showSlide(current);
+        }
+
+        function prevSlide() {
+            current = (current - 1 + slides.length) % slides.length;
+            showSlide(current);
+        }
+
+        if (nextBtn && prevBtn) {
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+        }
+
+        // Auto-carrusel cada 2 segundos
+        setInterval(nextSlide, 2000);
+    });
 });
 
 // Reloj en tiempo real
