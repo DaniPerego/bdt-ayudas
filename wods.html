@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armador de WODs Semanales</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <style>
+        .wods-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin: 2rem auto;
+            width: calc(100% - 4rem);
+            max-width: 1200px;
+        }
+        .ejercicios {
+            background: rgba(73,73,73,0.5);
+            border-radius: 4px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px #222;
+            min-width: 220px;
+            color: var(--color-blanco);
+        }
+        .ejercicio {
+            padding: 8px 12px;
+            margin: 6px 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+            cursor: grab;
+            color: var(--color-blanco);
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+        .semana {
+            background: rgba(73,73,73,0.5);
+            border-radius: 4px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px #222;
+            color: var(--color-blanco);
+        }
+        .dia {
+            margin-bottom: 2rem;
+        }
+        .dia h3 {
+            margin-top: 0;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--color-rojo);
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        .seccion {
+            min-height: 40px;
+            background: rgba(255,255,255,0.10);
+            border: 1px dashed #bbb;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            padding: 8px;
+            color: var(--color-blanco);
+            font-family: var(--font-body);
+        }
+        .seccion.over {
+            background: rgba(255,255,255,0.25);
+        }
+        .ejercicio-seleccionado {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 4px;
+            padding: 6px 8px;
+        }
+        .ejercicio-seleccionado input[type="number"] {
+            width: 60px;
+            margin-left: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #222;
+            color: var(--color-blanco);
+            font-size: 1rem;
+            padding: 2px 6px;
+        }
+        .ejercicio-seleccionado iframe {
+            border-radius: 6px;
+            box-shadow: 0 2px 8px #222;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav_logo">
+                <a href="index.html">
+                    <span>Bendito Cross</span>
+                    <span><p>Funcional Gym</p></span>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <section class="tools-section">
+        <h1 style="font-family: var(--font-heading); font-weight:700; color:var(--color-blanco); text-align:center; margin-bottom:2rem; font-size:2.5rem; text-transform:uppercase; letter-spacing:1px;">Armador de WODs Semanales</h1>
+    <button id="guardar-wods" style="margin: 1rem auto 2rem auto; display: block; background: var(--color-rojo); color: var(--color-blanco); font-family: var(--font-heading); font-weight: 600; font-size: 1rem; border: none; border-radius: 4px; padding: 0.7rem 1.5rem; cursor: pointer; letter-spacing: 1px;">GUARDAR WODS</button>
+    <div class="wods-container">
+            <div class="ejercicios">
+                <h2 style="font-family: var(--font-heading); font-weight:700; color:var(--color-rojo); text-align:center; margin-bottom:1rem; font-size:1.3rem; text-transform:uppercase; letter-spacing:1px;">Ejercicios</h2>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%;">
+                    <input type="text" id="buscador-ejercicios" placeholder="Buscar ejercicio..." style="width:90%; max-width:350px; margin-bottom:1rem; padding:8px 12px; border-radius:6px; border:1px solid #444; background:#222; color:#fff; font-size:1rem; text-align:center;">
+                    <div id="lista-ejercicios" style="width:100%;"></div>
+                </div>
+            </div>
+            <div class="semana">
+                <h2 style="font-family: var(--font-heading); font-weight:700; color:var(--color-rojo); text-align:center; margin-bottom:1rem; font-size:1.3rem; text-transform:uppercase; letter-spacing:1px;">Semana</h2>
+                <div id="dias">
+                    <div class="dia" id="lunes">
+                        <h3>Lunes</h3>
+                        <div class="seccion" data-seccion="activacion">Activación</div>
+                        <div class="seccion" data-seccion="calor">Entrada en calor</div>
+                        <div class="seccion" data-seccion="trabajo">Trabajos del día</div>
+                        <div class="seccion" data-seccion="wod">WOD del día</div>
+                    </div>
+                    <div class="dia" id="martes">
+                        <h3>Martes</h3>
+                        <div class="seccion" data-seccion="activacion">Activación</div>
+                        <div class="seccion" data-seccion="calor">Entrada en calor</div>
+                        <div class="seccion" data-seccion="trabajo">Trabajos del día</div>
+                        <div class="seccion" data-seccion="wod">WOD del día</div>
+                    </div>
+                    <div class="dia" id="miercoles">
+                        <h3>Miércoles</h3>
+                        <div class="seccion" data-seccion="activacion">Activación</div>
+                        <div class="seccion" data-seccion="calor">Entrada en calor</div>
+                        <div class="seccion" data-seccion="trabajo">Trabajos del día</div>
+                        <div class="seccion" data-seccion="wod">WOD del día</div>
+                    </div>
+                    <div class="dia" id="jueves">
+                        <h3>Jueves</h3>
+                        <div class="seccion" data-seccion="activacion">Activación</div>
+                        <div class="seccion" data-seccion="calor">Entrada en calor</div>
+                        <div class="seccion" data-seccion="trabajo">Trabajos del día</div>
+                        <div class="seccion" data-seccion="wod">WOD del día</div>
+                    </div>
+                    <div class="dia" id="viernes">
+                        <h3>Viernes</h3>
+                        <div class="seccion" data-seccion="activacion">Activación</div>
+                        <div class="seccion" data-seccion="calor">Entrada en calor</div>
+                        <div class="seccion" data-seccion="trabajo">Trabajos del día</div>
+                        <div class="seccion" data-seccion="wod">WOD del día</div>
+                    </div>
+                    <div class="dia" id="sabado">
+                        <h3>Sábado</h3>
+                        <div class="seccion" data-seccion="activacion">Activación</div>
+                        <div class="seccion" data-seccion="calor">Entrada en calor</div>
+                        <div class="seccion" data-seccion="trabajo">Trabajos del día</div>
+                        <div class="seccion" data-seccion="wod">WOD del día</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="footer-distributed">
+        <div class="footer-container">
+            <div class="footer-info">
+                <h3>Bendito Cross</h3>
+                <h5>Funcional Gimh</h5>
+                <p class="footer-description">Gimnasio funcional dedicado a mejorar tu salud y bienestar</p>
+            </div>
+            <div class="footer-contact">
+                <p><i class="bi bi-geo-alt"></i> Amado Bonpland 434, Paso de los Libres</p>
+                <p><i class="bi bi-telephone"></i> +54 9 3772 636766</p>
+            </div>
+            <div class="footer-social">
+                <a href="https://www.instagram.com/benditocross/"><i class="bi bi-instagram"></i></a>
+                <a href="https://www.facebook.com/benditocross"><i class="bi bi-facebook"></i></a>
+                <a href="https://wa.me/+5493772636766"><i class="bi bi-whatsapp"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Cargar ejercicios y videos desde videos-list.json (JSON puro)
+        let videos = [];
+        fetch('videos-list.json')
+            .then(res => res.json())
+            .then(data => {
+                videos = data;
+                cargarEjercicios();
+                activarDragDrop();
+            });
+
+        function cargarEjercicios(filtro = '') {
+            const lista = document.getElementById('lista-ejercicios');
+            lista.innerHTML = '';
+            videos.forEach(video => {
+                const nombreCorto = video.nombre.split(' - ')[0].trim();
+                if (nombreCorto.toLowerCase().includes(filtro.toLowerCase())) {
+                    const div = document.createElement('div');
+                    div.className = 'ejercicio';
+                    div.draggable = true;
+                    div.textContent = nombreCorto;
+                    div.dataset.video = video.url;
+                    div.dataset.nombre = video.nombre;
+                    lista.appendChild(div);
+                }
+            });
+        }
+
+        document.getElementById('buscador-ejercicios').addEventListener('input', function(e) {
+            cargarEjercicios(e.target.value);
+            setTimeout(activarDragDrop, 0); // Espera a que se renderice el listado antes de agregar listeners
+        });
+
+        function activarDragDrop() {
+            // Delegación para dragstart en el listado de ejercicios (solo una vez)
+            const listaEjercicios = document.getElementById('lista-ejercicios');
+            if (!listaEjercicios._dragListenerAdded) {
+                listaEjercicios.addEventListener('dragstart', function(e) {
+                    if (e.target.classList.contains('ejercicio')) {
+                        e.dataTransfer.setData('nombre', e.target.dataset.nombre);
+                        e.dataTransfer.setData('video', e.target.dataset.video);
+                    }
+                });
+                listaEjercicios._dragListenerAdded = true;
+            }
+
+            const secciones = document.querySelectorAll('.seccion');
+            secciones.forEach(seccion => {
+                seccion.ondragover = null;
+                seccion.ondragleave = null;
+                seccion.ondrop = null;
+                seccion.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    seccion.classList.add('over');
+                });
+                seccion.addEventListener('dragleave', e => {
+                    seccion.classList.remove('over');
+                });
+                seccion.addEventListener('drop', e => {
+                    e.preventDefault();
+                    seccion.classList.remove('over');
+                    const nombre = e.dataTransfer.getData('nombre');
+                    const video = e.dataTransfer.getData('video');
+                    const internalDrag = e.dataTransfer.getData('internal-drag');
+
+                    if (internalDrag) {
+                        // Reordenar ejercicio dentro de la sección
+                        const draggedId = e.dataTransfer.getData('dragged-id');
+                        const draggedElem = document.getElementById(draggedId);
+                        if (draggedElem && draggedElem.parentNode === seccion) {
+                            if (e.target.classList.contains('ejercicio-seleccionado') && e.target !== draggedElem) {
+                                seccion.insertBefore(draggedElem, e.target);
+                            } else {
+                                seccion.appendChild(draggedElem);
+                            }
+                        }
+                        guardarWodsEnLocal();
+                        return;
+                    }
+
+                    // Crear nuevo ejercicio
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'ejercicio-seleccionado';
+                    wrapper.style.display = 'flex';
+                    wrapper.style.alignItems = 'center';
+                    wrapper.style.gap = '10px';
+                    wrapper.draggable = true;
+                    wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
+
+                    const nombreSpan = document.createElement('span');
+                    nombreSpan.className = 'ejercicio';
+                    nombreSpan.textContent = nombre;
+
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.value = '10';
+                    input.style.width = '60px';
+                    input.style.marginLeft = '8px';
+                    input.title = 'Cantidad de repeticiones';
+
+                    const iframe = document.createElement('iframe');
+                    iframe.width = '200';
+                    iframe.height = '120';
+                    iframe.src = video;
+                    iframe.frameBorder = '0';
+                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframe.allowFullscreen = true;
+
+                    const btnEliminar = document.createElement('button');
+                    btnEliminar.textContent = '✖';
+                    btnEliminar.title = 'Eliminar ejercicio';
+                    btnEliminar.style.marginLeft = '8px';
+                    btnEliminar.style.background = 'transparent';
+                    btnEliminar.style.color = 'var(--color-rojo)';
+                    btnEliminar.style.border = 'none';
+                    btnEliminar.style.fontSize = '1.2rem';
+                    btnEliminar.style.cursor = 'pointer';
+                    btnEliminar.onclick = () => { wrapper.remove(); guardarWodsEnLocal(); };
+
+                    input.addEventListener('change', guardarWodsEnLocal);
+
+                    wrapper.appendChild(nombreSpan);
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(iframe);
+                    wrapper.appendChild(btnEliminar);
+                    seccion.appendChild(wrapper);
+
+                    // Drag interno para reordenar
+                    wrapper.addEventListener('dragstart', ev => {
+                        ev.dataTransfer.setData('internal-drag', 'true');
+                        ev.dataTransfer.setData('dragged-id', wrapper.id);
+                    });
+
+                    guardarWodsEnLocal();
+                });
+            });
+            // Permitir drag interno en ejercicios ya agregados
+            document.addEventListener('dragstart', function(ev) {
+                if (ev.target.classList.contains('ejercicio-seleccionado')) {
+                    ev.dataTransfer.setData('internal-drag', 'true');
+                    ev.dataTransfer.setData('dragged-id', ev.target.id);
+                }
+            });
+        }
+
+        function guardarWodsEnLocal() {
+            const secciones = document.querySelectorAll('.seccion');
+            const data = {};
+            secciones.forEach(seccion => {
+                const ejercicios = Array.from(seccion.querySelectorAll('.ejercicio-seleccionado')).map(ej => {
+                    return {
+                        nombre: ej.querySelector('.ejercicio').textContent,
+                        repeticiones: ej.querySelector('input').value,
+                        video: ej.querySelector('iframe').src
+                    };
+                });
+                data[seccion.dataset.seccion + '-' + seccion.parentNode.parentNode.id] = ejercicios;
+            });
+            localStorage.setItem('wods-semana', JSON.stringify(data));
+        }
+
+        function restaurarWodsDeLocal() {
+            const data = JSON.parse(localStorage.getItem('wods-semana') || '{}');
+            Object.keys(data).forEach(key => {
+                const [seccion, dia] = key.split('-');
+                const contenedor = document.querySelector('#' + dia + ' .seccion[data-seccion="' + seccion + '"]');
+                if (contenedor) {
+                    contenedor.innerHTML = seccion.charAt(0).toUpperCase() + seccion.slice(1).replace('activacion','Activación').replace('calor','Entrada en calor').replace('trabajo','Trabajos del día').replace('wod','WOD del día');
+                    data[key].forEach(ej => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'ejercicio-seleccionado';
+                        wrapper.style.display = 'flex';
+                        wrapper.style.alignItems = 'center';
+                        wrapper.style.gap = '10px';
+                        wrapper.draggable = true;
+                        wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
+
+                        const nombreSpan = document.createElement('span');
+                        nombreSpan.className = 'ejercicio';
+                        nombreSpan.textContent = ej.nombre;
+
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.min = '1';
+                        input.value = ej.repeticiones;
+                        input.style.width = '60px';
+                        input.style.marginLeft = '8px';
+                        input.title = 'Cantidad de repeticiones';
+                        input.addEventListener('change', guardarWodsEnLocal);
+
+                        const iframe = document.createElement('iframe');
+                        iframe.width = '200';
+                        iframe.height = '120';
+                        iframe.src = ej.video;
+                        iframe.frameBorder = '0';
+                        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                        iframe.allowFullscreen = true;
+
+                        const btnEliminar = document.createElement('button');
+                        btnEliminar.textContent = '✖';
+                        btnEliminar.title = 'Eliminar ejercicio';
+                        btnEliminar.style.marginLeft = '8px';
+                        btnEliminar.style.background = 'transparent';
+                        btnEliminar.style.color = 'var(--color-rojo)';
+                        btnEliminar.style.border = 'none';
+                        btnEliminar.style.fontSize = '1.2rem';
+                        btnEliminar.style.cursor = 'pointer';
+                        btnEliminar.onclick = () => { wrapper.remove(); guardarWodsEnLocal(); };
+
+                        wrapper.appendChild(nombreSpan);
+                        wrapper.appendChild(input);
+                        wrapper.appendChild(iframe);
+                        wrapper.appendChild(btnEliminar);
+                        contenedor.appendChild(wrapper);
+                        // Drag interno para reordenar
+                        wrapper.addEventListener('dragstart', ev => {
+                            ev.dataTransfer.setData('internal-drag', 'true');
+                            ev.dataTransfer.setData('dragged-id', wrapper.id);
+                        });
+                    });
+                }
+            });
+        }
+
+        document.getElementById('guardar-wods').onclick = guardarWodsEnLocal;
+        window.addEventListener('DOMContentLoaded', restaurarWodsDeLocal);
+    </script>
+</body>
+</html>
