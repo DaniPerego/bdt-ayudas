@@ -92,6 +92,9 @@
     </style>
 </head>
 <body>
+    <div id="chat-clock" style="position:fixed;top:10px;right:20px;background:#222;color:#fff;padding:8px 16px;border-radius:8px;font-family:monospace;z-index:9999;box-shadow:0 2px 8px #0008;">
+        --:--:--
+    </div>
     <header>
         <nav class="navbar">
             <div class="nav_logo">
@@ -214,17 +217,20 @@
         });
 
         function activarDragDrop() {
-            // Delegación para dragstart en el listado de ejercicios (solo una vez)
             const listaEjercicios = document.getElementById('lista-ejercicios');
-            if (!listaEjercicios._dragListenerAdded) {
-                listaEjercicios.addEventListener('dragstart', function(e) {
-                    if (e.target.classList.contains('ejercicio')) {
-                        e.dataTransfer.setData('nombre', e.target.dataset.nombre);
-                        e.dataTransfer.setData('video', e.target.dataset.video);
-                    }
-                });
-                listaEjercicios._dragListenerAdded = true;
+            if (!listaEjercicios) return;
+            // Elimina el listener anterior si existe
+            if (listaEjercicios._dragListenerRef) {
+                listaEjercicios.removeEventListener('dragstart', listaEjercicios._dragListenerRef);
             }
+            // Define y agrega el nuevo listener
+            listaEjercicios._dragListenerRef = function(e) {
+                if (e.target.classList.contains('ejercicio')) {
+                    e.dataTransfer.setData('nombre', e.target.dataset.nombre);
+                    e.dataTransfer.setData('video', e.target.dataset.video);
+                }
+            };
+            listaEjercicios.addEventListener('dragstart', listaEjercicios._dragListenerRef);
 
             const secciones = document.querySelectorAll('.seccion');
             secciones.forEach(seccion => {
@@ -409,4 +415,5 @@
         window.addEventListener('DOMContentLoaded', restaurarWodsDeLocal);
     </script>
 </body>
+    <script src="script.js"></script>
 </html>

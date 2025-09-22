@@ -13,10 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.getElementById('_toggle');
     const items = document.getElementById('_items');
 
-    toggle.addEventListener('click', () => {
-        items.classList.toggle('open');
-        toggle.classList.toggle('close');
-    });
+    if (toggle && items) {
+        toggle.addEventListener('click', () => {
+            items.classList.toggle('open');
+            toggle.classList.toggle('close');
+        });
+    }
 
     // Referencias a elementos del DOM para el cronómetro y tabata
     const stopwatchDisplay = document.getElementById('stopwatch');
@@ -41,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let isCountingUp = true;
     let startTime = 0;
     let elapsed = 0;
-    let targetTime = 0;
 
     function createBeep(frequency, volume, duration) {
         if (!isSoundEnabled) return;
@@ -58,66 +59,73 @@ document.addEventListener('DOMContentLoaded', function() {
             audioContext.close();
         }, duration * 1000);
     }
-    function playStartSound() { createBeep(700, 0.2, 0.15); }
-    function playEndSound() { createBeep(880, 0.3, 0.2); }
 
-    function getSelectedTimeMs() {
-        const h = parseInt(document.getElementById('hours').value) || 0;
-        const m = parseInt(document.getElementById('minutes').value) || 0;
-        const s = parseInt(document.getElementById('seconds').value) || 0;
-        return (h * 3600 + m * 60 + s) * 1000;
-    }
+    // --- Fetch ejercicios ---
+    fetch('videos-list.json')
+        .then(res => {
+            if (!res.ok) throw new Error('No se pudo cargar videos-list.json');
+            return res.json();
+        })
+        .then(data => {
+            videos = data;
+            cargarEjercicios();
+        })
+        .catch(err => {
+            const lista = document.getElementById('lista-ejercicios');
+            if (lista) {
+                lista.innerHTML = `<div style="color:var(--color-rojo);text-align:center;padding:2rem;">No se pudo cargar la lista de ejercicios.<br><small>${err.message}</small></div>`;
+            }
+            console.error('Error al cargar ejercicios:', err);
+        });
 
-    function formatTime(ms) {
-        const totalSeconds = Math.floor(ms / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        const milliseconds = ms % 1000;
-        return `${hours.toString().padStart(2, '0')}:${minutes
-            .toString().padStart(2, '0')}:${seconds
-            .toString().padStart(2, '0')}.${milliseconds
-            .toString().padStart(3, '0')}`;
-    }
+    // --- CLAVE: Reemplazar nodos de sección por clones para limpiar listeners previos ---
+    const secciones = document.querySelectorAll('.seccion');
+    secciones.forEach(seccion => {
+        seccion.replaceWith(seccion.cloneNode(true));
+    });
+    const seccionesActualizadas = document.querySelectorAll('.seccion');
+    seccionesActualizadas.forEach(seccion => {
+        seccion.addEventListener('dragover', e => {
+            e.preventDefault();
+            seccion.classList.add('over');
+        });
+        seccion.addEventListener('dragleave', e => {
+            seccion.classList.remove('over');
+        });
+            let dropActivo = false;
+            seccion.addEventListener('drop', e => {
+                if (dropActivo) return;
+                dropActivo = true;
+                setTimeout(() => { dropActivo = false; }, 100);
+                e.preventDefault();
+                seccion.classList.remove('over');
+                // Lógica para agregar el ejercicio arrastrado
+                const nombre = e.dataTransfer.getData('nombre');
+                const videoUrl = e.dataTransfer.getData('video');
+                if (!nombre || !videoUrl) return;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'ejercicio-seleccionado';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.draggable = true;
+                wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
 
-    function updateStopwatchDisplay(ms) {
-        if (stopwatchDisplay) stopwatchDisplay.textContent = formatTime(ms);
-    }
+                const nombreSpan = document.createElement('span');
+                nombreSpan.className = 'ejercicio';
+                nombreSpan.textContent = nombre;
 
-    function startStopwatch() {
-        if (isRunning) return;
-        isRunning = true;
-        if (startButton) startButton.textContent = 'Pausar';
-        playStartSound();
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.value = '10';
+                input.style.width = '60px';
+                input.style.marginLeft = '8px';
+                input.title = 'Cantidad de repeticiones';
 
-        if (isCountingUp) {
-            startTime = Date.now() - elapsed;
-            targetTime = getSelectedTimeMs();
-            stopwatchInterval = setInterval(() => {
-                elapsed = Date.now() - startTime;
-                updateStopwatchDisplay(elapsed);
-                if (targetTime > 0 && elapsed >= targetTime) {
-                    stopStopwatch();
-                    updateStopwatchDisplay(targetTime);
-                    playEndSound();
-                }
-            }, 30);
-        } else {
-            startTime = Date.now();
-            targetTime = getSelectedTimeMs();
-            elapsed = targetTime;
-            stopwatchInterval = setInterval(() => {
-                const diff = Date.now() - startTime;
-                let remaining = targetTime - diff;
-                if (remaining < 0) remaining = 0;
-                updateStopwatchDisplay(remaining);
-                if (remaining === 0) {
-                    stopStopwatch();
-                    playEndSound();
-                }
-            }, 30);
-        }
-    }
+                const iframe = document.createElement('iframe');
+                iframe.width = '200';
+                    // ...existing code...
 
     function stopStopwatch() {
         if (!isRunning) return;
@@ -368,59 +376,124 @@ document.addEventListener('DOMContentLoaded', function() {
     const emomMinutesInput = document.getElementById('emom-minutes');
     const emomSecondsInput = document.getElementById('emom-seconds');
     const emomTimeDisplay = document.getElementById('emom-time');
-    const emomRoundDisplay = document.getElementById('emom-round');
-    const emomStartButton = document.getElementById('emom-start');
-    const emomResetButton = document.getElementById('emom-reset');
+        // --- Listeners de drop en secciones SOLO UNA VEZ ---
+        // Listeners de drop en secciones SOLO UNA VEZ y nunca se duplican
+        const secciones = document.querySelectorAll('.seccion');
+        secciones.forEach(seccion => {
+            if (!seccion.dataset.dropListener) {
+                seccion.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    seccion.classList.add('over');
+                });
+                seccion.addEventListener('dragleave', e => {
+                    seccion.classList.remove('over');
+                });
+                seccion.addEventListener('drop', e => {
+                    e.preventDefault();
+                    seccion.classList.remove('over');
+                    // Evitar duplicados: solo agregar si no existe ya el ejercicio en la sección
+                    const nombre = e.dataTransfer.getData('nombre');
+                    const videoUrl = e.dataTransfer.getData('video');
+                    if (!nombre || !videoUrl) return;
+                    const yaExiste = Array.from(seccion.querySelectorAll('.ejercicio-seleccionado .ejercicio')).some(span => span.textContent === nombre);
+                    if (yaExiste) return;
+                    // Solo una declaración de 'wrapper'
+                    let wrapper = document.createElement('div');
+                    wrapper.className = 'ejercicio-seleccionado';
+                    wrapper.style.display = 'flex';
+                    wrapper.style.alignItems = 'center';
+                    wrapper.style.gap = '10px';
+                    wrapper.draggable = true;
+                    wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
 
-    function formatMMSS(totalSeconds) {
-        const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-        const s = (totalSeconds % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
-    }
+                    const nombreSpan = document.createElement('span');
+                    nombreSpan.className = 'ejercicio';
+                    nombreSpan.textContent = nombre;
 
-    function updateEmomDisplay() {
-        if (emomTimeDisplay) emomTimeDisplay.textContent = formatMMSS(emomTimeLeft);
-        if (emomRoundDisplay) emomRoundDisplay.textContent = `Ronda: ${emomCurrentRound}/${emomTotalRounds}`;
-    }
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.value = '10';
+                    input.style.width = '60px';
+                    input.style.marginLeft = '8px';
+                    input.title = 'Cantidad de repeticiones';
 
-    function startEmom() {
-        if (isEmomRunning) return;
-        isEmomRunning = true;
-        if (emomStartButton) emomStartButton.textContent = 'Pausar';
+                    const iframe = document.createElement('iframe');
+                    iframe.width = '200';
+                    iframe.height = '120';
+                    iframe.src = videoUrl; // SIEMPRE video.url
+                    iframe.frameBorder = '0';
+                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                    iframe.setAttribute('allowfullscreen', '');
 
-        const totalMinutes = parseInt(emomMinutesInput.value) || 1;
-        const secondsPerRound = parseInt(emomSecondsInput.value) || 0;
-        emomTotalRounds = totalMinutes;
-        emomCurrentRound = 1;
-        emomTimePerRound = 60 + secondsPerRound; // 1 minuto + segundos extra
-        emomTimeLeft = emomTimePerRound;
+                    const btnEliminar = document.createElement('button');
+                    btnEliminar.textContent = '✖';
+                    btnEliminar.title = 'Eliminar ejercicio';
+                    btnEliminar.style.marginLeft = '8px';
+                    btnEliminar.style.background = 'transparent';
+                    btnEliminar.style.color = 'var(--color-rojo)';
+                    btnEliminar.style.border = 'none';
+                    btnEliminar.style.fontSize = '1.2rem';
+                    btnEliminar.style.cursor = 'pointer';
+                    btnEliminar.onclick = () => { wrapper.remove(); };
 
-        updateEmomDisplay();
-        playStartSound();
-
-        emomInterval = setInterval(() => {
-            emomTimeLeft--;
-            updateEmomDisplay();
-
-            if (emomTimeLeft === 0) {
-                playEndSound();
-                if (emomCurrentRound < emomTotalRounds) {
-                    emomCurrentRound++;
-                    emomTimeLeft = emomTimePerRound;
-                    playStartSound();
-                } else {
-                    stopEmom();
-                }
+                    wrapper.appendChild(nombreSpan);
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(iframe);
+                    wrapper.appendChild(btnEliminar);
+                    seccion.appendChild(wrapper);
+                });
+                seccion.dataset.dropListener = 'true';
             }
-        }, 1000);
-    }
+        });
+                const yaExiste = Array.from(seccion.querySelectorAll('.ejercicio-seleccionado .ejercicio')).some(span => span.textContent === nombre);
+                if (yaExiste) return;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'ejercicio-seleccionado';
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.draggable = true;
+                wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
 
-    function stopEmom() {
-        clearInterval(emomInterval);
-        isEmomRunning = false;
-        if (emomStartButton) emomStartButton.textContent = 'Iniciar';
-    }
+                const nombreSpan = document.createElement('span');
+                nombreSpan.className = 'ejercicio';
+                nombreSpan.textContent = nombre;
 
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.value = '10';
+                input.style.width = '60px';
+                input.style.marginLeft = '8px';
+                input.title = 'Cantidad de repeticiones';
+
+                const iframe = document.createElement('iframe');
+                iframe.width = '200';
+                iframe.height = '120';
+                iframe.src = videoUrl; // SIEMPRE video.url
+                iframe.frameBorder = '0';
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                iframe.setAttribute('allowfullscreen', '');
+
+                const btnEliminar = document.createElement('button');
+                btnEliminar.textContent = '✖';
+                btnEliminar.title = 'Eliminar ejercicio';
+                btnEliminar.style.marginLeft = '8px';
+                btnEliminar.style.background = 'transparent';
+                btnEliminar.style.color = 'var(--color-rojo)';
+                btnEliminar.style.border = 'none';
+                btnEliminar.style.fontSize = '1.2rem';
+                btnEliminar.style.cursor = 'pointer';
+                btnEliminar.onclick = () => { wrapper.remove(); };
+
+                wrapper.appendChild(nombreSpan);
+                wrapper.appendChild(input);
+                wrapper.appendChild(iframe);
+                wrapper.appendChild(btnEliminar);
+                seccion.appendChild(wrapper);
+            });
+        });
     function resetEmom() {
         stopEmom();
         emomCurrentRound = 0;
@@ -570,14 +643,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ----------- BUSCADOR DE EJERCICIOS -----------
     // Para ejercicios (ajusta el selector según tu estructura)
+    // --- Lógica para cargar y filtrar ejercicios con drag & drop ---
+    let videos = [];
+    fetch('videos-list.json')
+        .then(res => res.json())
+        .then(data => {
+            videos = data;
+            cargarEjercicios();
+            activarDragDrop();
+        });
+
+    function cargarEjercicios(filtro = '') {
+        const lista = document.getElementById('lista-ejercicios');
+        if (!lista) return;
+        lista.innerHTML = '';
+        videos.forEach(video => {
+            const nombreCorto = video.nombre.split(' - ')[0].trim();
+            if (nombreCorto.toLowerCase().includes(filtro.toLowerCase())) {
+                const div = document.createElement('div');
+                div.className = 'ejercicio';
+                div.draggable = true;
+                div.textContent = nombreCorto;
+                div.dataset.video = video.url;
+                div.dataset.nombre = video.nombre;
+                lista.appendChild(div);
+            }
+        });
+        activarDragDrop();
+    }
+
+    function activarDragDrop() {
+        const listaEjercicios = document.getElementById('lista-ejercicios');
+        if (!listaEjercicios) return;
+        // Elimina el listener anterior si existe
+        if (listaEjercicios._dragListenerRef) {
+            listaEjercicios.removeEventListener('dragstart', listaEjercicios._dragListenerRef);
+        }
+        // Define y agrega el nuevo listener
+        listaEjercicios._dragListenerRef = function(e) {
+            if (e.target.classList.contains('ejercicio')) {
+                e.dataTransfer.setData('nombre', e.target.dataset.nombre);
+                e.dataTransfer.setData('video', e.target.dataset.video);
+            }
+        };
+        listaEjercicios.addEventListener('dragstart', listaEjercicios._dragListenerRef);
+    }
+
     const buscadorEjercicios = document.getElementById('buscador-ejercicios');
     if (buscadorEjercicios) {
-        buscadorEjercicios.addEventListener('input', function() {
-            const filtro = this.value.toLowerCase();
-            document.querySelectorAll('.video-card').forEach(card => {
-                const texto = card.textContent.toLowerCase();
-                card.style.display = texto.includes(filtro) ? '' : 'none';
-            });
+        buscadorEjercicios.addEventListener('input', function(e) {
+            cargarEjercicios(e.target.value);
         });
     }
 
@@ -655,7 +770,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-carrusel cada 2 segundos
         setInterval(nextSlide, 2000);
     });
-});
 
 // Reloj en tiempo real
 function updateClock() {
@@ -669,3 +783,16 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+// Reloj para el chat (esquina superior derecha)
+function updateChatClock() {
+    const el = document.getElementById('chat-clock');
+    if (!el) return;
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+    const s = now.getSeconds().toString().padStart(2, '0');
+    el.textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateChatClock, 1000);
+updateChatClock();
