@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bendito Cross - Tienda CrossFit</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/tienda.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav_logo">
+                <a href="index.html">
+                    <span>Bendito Cross</span>
+                    <span><p>Funcional Gym</p></span>
+                </a>
+            </div>
+            <div class="nav_items" id="_items">
+                <a href="index.html">INICIO</a>
+                <a href="rm.html">% RM</a>
+                <a href="fortime.html">FOR TIME</a>
+                <a href="ejercicios.html">AYUDAS TRAINING</a>
+                <a href="horarios.html">HORARIOS</a>
+                <a href="diccionario.html">DICCIONARIO</a>
+                <a href="tienda.html">TIENDA</a>
+            </div>
+            <div class="nav_toggle" id="_toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="wrapper">
+        <aside>
+            <header>
+                <h1 class="logo">Bendito Cross Store</h1>
+            </header>
+            <nav>
+                <ul class="menu">
+                    <li>
+                        <button id="todos" class="boton-menu boton-categoria active">
+                            <i class="bi bi-hand-index-thumb-fill"></i> Todos los productos
+                        </button>
+                    </li>
+                    <li>
+                        <button id="suplementos" class="boton-menu boton-categoria">
+                            <i class="bi bi-capsule-pill"></i> Suplementos
+                        </button>
+                    </li>
+                    <li>
+                        <button id="ropa" class="boton-menu boton-categoria">
+                            <i class="bi bi-person-fill"></i> Ropa Deportiva
+                        </button>
+                    </li>
+                    <li>
+                        <button id="equipamiento" class="boton-menu boton-categoria">
+                            <i class="bi bi-tools"></i> Equipamiento
+                        </button>
+                    </li>
+                    <li>
+                        <button id="accesorios" class="boton-menu boton-categoria">
+                            <i class="bi bi-bag-fill"></i> Accesorios
+                        </button>
+                    </li>
+                    <li>
+                        <a class="boton-menu boton-carrito" href="carrito.html">
+                            <i class="bi bi-cart-fill"></i> Carrito <span id="numerito" class="numerito">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <footer>
+                <p class="texto-footer">© 2025 Bendito Cross</p>
+            </footer>
+        </aside>
+        
+        <main>
+            <h2 class="titulo-principal" id="titulo-principal">Todos los productos</h2>
+            <div id="contenedor-productos" class="contenedor-productos">
+                <!-- Los productos se cargarán dinámicamente aquí -->
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="js/productos.js"></script>
+    <script src="js/main.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

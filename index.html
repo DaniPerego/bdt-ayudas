@@ -25,7 +25,7 @@
                 <a href="ejercicios.html">AYUDAS TRAINING</a>
                 <a href="horarios.html">HORARIOS</a>
                 <a href="diccionario.html">DICCIONARIO</a>
-                <a href="#tienda" class="nav-item">TIENDA</a>
+                <a href="tienda.html">TIENDA</a>
             </div>
             <div class="nav_toggle" id="_toggle">
                 <span></span>
@@ -92,6 +92,12 @@
                 <p>Organiza los WODs de la semana y asigna ejercicios</p>
                 <a href="wods.html" class="tool-button">ARMAR WODS</a>
             </div>
+            <div id="modul7" class="tool-card">
+                <i class="bi bi-cart3"></i>
+                <h2>Tienda CrossFit</h2>
+                <p>Suplementos, ropa y equipamiento para tu entrenamiento</p>
+                <a href="tienda.html" class="tool-button">IR A TIENDA</a>
+            </div>
         </div>
     </section>
 
@@ -108,54 +114,6 @@
       <button class="carrusel-btn prev" id="carrusel-prev">&#10094;</button>
       <button class="carrusel-btn next" id="carrusel-next">&#10095;</button>
     </div>
-
-    <!-- Añadido: enlace de navegación a TIENDA -->
-<nav class="main-nav">
-  <!-- ...existing nav items... -->
-  <a href="#tienda" class="nav-item">TIENDA</a>
-</nav>
-
-<!-- Añadido: sección Tienda -->
-<main id="tienda" class="tienda-wrapper container">
-  <aside class="tienda-aside">
-    <header class="aside-header">
-      <h2 class="logo">Bendito Cross</h2>
-    </header>
-
-    <nav class="categorias">
-      <button class="categoria-btn active" id="todas">Todas</button>
-      <button class="categoria-btn" id="abrigos">Abrigos</button>
-      <button class="categoria-btn" id="camisetas">Camisetas</button>
-      <button class="categoria-btn" id="pantalones">Pantalones</button>
-      <button class="categoria-btn" id="accesorios">Accesorios</button>
-    </nav>
-
-    <footer class="aside-footer">
-      <small>Soporte · Envíos · Devoluciones</small>
-    </footer>
-  </aside>
-
-  <section class="tienda-main">
-    <div class="carrito-bar">
-      <button id="ver-carrito" class="btn">Carrito (<span id="numerito">0</span>)</button>
-      <div class="total-compact">Total: $<span id="total-compact">0</span></div>
-    </div>
-
-    <section id="productos" class="productos-grid bento" aria-live="polite">
-      <!-- Productos inyectados por js/tienda.js -->
-    </section>
-
-    <aside id="carrito-panel" class="carrito-panel hidden" aria-hidden="true">
-      <h3>Tu carrito</h3>
-      <div id="carrito-list"></div>
-      <div class="carrito-acciones">
-        <div>Total: $<span id="carrito-total">0</span></div>
-        <button id="vaciar-carrito" class="btn-danger">Vaciar carrito</button>
-        <button id="cerrar-carrito" class="btn">Cerrar</button>
-      </div>
-    </aside>
-  </section>
-</main>
 
     <footer class="footer-distributed">
         <div class="footer-container">
@@ -177,6 +135,6 @@
     </footer>
 
    <script src="script.js"></script>
-<script src="js/tienda.js"></script>
+
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Variables globales
+/// Variables globales
 let youtubePlayer = null;
 let isYouTubeAPIReady = false;
 let tabataInterval;
