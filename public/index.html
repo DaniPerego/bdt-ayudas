@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Acceso</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>Control de Acceso</h1>
+        <form id="login-form">
+            <label for="socio-id">DNI o Código de Socio</label>
+            <input type="text" id="socio-id" name="socioId" placeholder="Ingrese su identificador" required>
+            <button type="submit">Verificar Acceso</button>
+        </form>
+        <div id="message-container" class="message">
+            <!-- Aquí se mostrarán los mensajes de acceso permitido/denegado -->
+        </div>
+    </div>
+
+    <script src="/js/login.js"></script>
+</body>
+</html>

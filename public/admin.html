@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Socios</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* Estilos adicionales para la página de admin */
+        body { display: block; }
+        .admin-container { max-width: 800px; margin: 2rem auto; padding: 2rem; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+        .form-section, .list-section { margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.8rem; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .delete-btn:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Gestión de Socios</h1>
+        
+        <!-- Formulario para agregar nuevos socios -->
+        <div class="form-section">
+            <h2>Agregar/Actualizar Socio</h2>
+            <form id="add-socio-form">
+                <input type="text" id="socio-id" placeholder="DNI / Código de Socio" required>
+                <input type="text" id="socio-nombre" placeholder="Nombre Completo" required>
+                <input type="date" id="socio-vencimiento" required>
+                <button type="submit">Guardar Socio</button>
+            </form>
+            <p id="form-message"></p>
+        </div>
+
+        <!-- Tabla para listar socios existentes -->
+        <div class="list-section">
+            <h2>Lista de Socios</h2>
+            <table id="socios-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Vencimiento Cuota</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="socios-tbody">
+                    <!-- Las filas se insertarán aquí con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>
