@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const nombre = e.dataTransfer.getData('nombre');
                 const videoUrl = e.dataTransfer.getData('video');
                 if (!nombre || !videoUrl) return;
-                const wrapper = document.createElement('div');
+                let wrapper = document.createElement('div');
                 wrapper.className = 'ejercicio-seleccionado';
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
                 const yaExiste = Array.from(seccion.querySelectorAll('.ejercicio-seleccionado .ejercicio')).some(span => span.textContent === nombre);
                 if (yaExiste) return;
-                const wrapper = document.createElement('div');
+                let wrapper = document.createElement('div');
                 wrapper.className = 'ejercicio-seleccionado';
                 wrapper.style.display = 'flex';
                 wrapper.style.alignItems = 'center';

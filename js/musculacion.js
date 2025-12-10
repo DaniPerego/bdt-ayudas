@@ -2,6 +2,8 @@
 const API_KEY = 'ecWRWLvQ2HDs0I+/1Y/PbQ==7fMcNh5f7W1HpfRW'; // Obtén tu key gratis en https://api-ninjas.com/
 const API_URL = 'https://api.api-ninjas.com/v1/exercises';
 
+console.log('API Key configurada:', API_KEY ? 'Sí (longitud: ' + API_KEY.length + ')' : 'No');
+
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
 const btnBuscar = document.getElementById('btn-buscar');
@@ -18,11 +20,13 @@ let ejerciciosCache = [];
 
 // Verificar si la API key está configurada
 function verificarApiKey() {
-    if (!API_KEY || API_KEY === 'TU_API_KEY_AQUI') {
+    if (!API_KEY || API_KEY.trim() === '' || API_KEY === 'TU_API_KEY_AQUI') {
+        console.warn('API Key no configurada correctamente');
         mensajeApi.style.display = 'block';
         ejerciciosContainer.style.display = 'none';
         return false;
     }
+    console.log('API Key verificada correctamente');
     mensajeApi.style.display = 'none';
     return true;
 }
