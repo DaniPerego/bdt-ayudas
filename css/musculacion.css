@@ -82,6 +82,33 @@
     transform: translateY(0);
 }
 
+.btn-limpiar-cache {
+    padding: 12px 24px;
+    background: #9C27B0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(156, 39, 176, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-limpiar-cache:hover {
+    background: #7B1FA2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(156, 39, 176, 0.4);
+}
+
+.btn-limpiar-cache:active {
+    transform: translateY(0);
+}
+
 /* Loader/Spinner */
 .loader {
     display: flex;

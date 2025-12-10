@@ -37,17 +37,34 @@ function obtenerCacheEjercicios() {
     const cache = localStorage.getItem('ejercicios-cache');
     if (!cache) return null;
     
-    const data = JSON.parse(cache);
-    const ahora = new Date().getTime();
-    const unDia = 24 * 60 * 60 * 1000; // 1 día en milisegundos
-    
-    // Si el cache tiene menos de 1 día, usarlo
-    if (ahora - data.timestamp < unDia) {
-        console.log('Usando ejercicios del caché');
-        return data.ejercicios;
+    try {
+        const data = JSON.parse(cache);
+        const ahora = new Date().getTime();
+        const unDia = 24 * 60 * 60 * 1000; // 1 día en milisegundos
+        
+        // Verificar que los ejercicios tengan gifUrl
+        if (data.ejercicios && data.ejercicios.length > 0) {
+            const primerEjercicio = data.ejercicios[0];
+            if (!primerEjercicio.gifUrl && !primerEjercicio.gif_url) {
+                console.warn('Caché corrupto detectado (sin GIFs). Limpiando...');
+                localStorage.removeItem('ejercicios-cache');
+                return null;
+            }
+        }
+        
+        // Si el cache tiene menos de 1 día, usarlo
+        if (ahora - data.timestamp < unDia) {
+            console.log('Usando ejercicios del caché (' + data.ejercicios.length + ' ejercicios)');
+            return data.ejercicios;
+        }
+        
+        console.log('Caché expirado');
+        return null;
+    } catch (error) {
+        console.error('Error al leer caché:', error);
+        localStorage.removeItem('ejercicios-cache');
+        return null;
     }
-    
-    return null;
 }
 
 function guardarCacheEjercicios(ejercicios) {
@@ -91,6 +108,8 @@ async function cargarEjercicios() {
         }
 
         const ejercicios = await response.json();
+        console.log('Ejercicios cargados:', ejercicios.length);
+        console.log('Ejemplo de ejercicio:', ejercicios[0]);
         ejerciciosCache = ejercicios;
         guardarCacheEjercicios(ejercicios);
         aplicarFiltros();
@@ -188,10 +207,26 @@ function crearCardEjercicio(ejercicio, index) {
     };
 
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
+    
+    // Asegurar que la URL del GIF sea correcta
+    const gifUrl = ejercicio.gifUrl || ejercicio.gif_url || null;
+    
+    // Debug: mostrar el primer ejercicio
+    if (index === 0) {
+        console.log('Primer ejercicio completo:', ejercicio);
+        console.log('GIF URL del primero:', gifUrl);
+    }
 
     card.innerHTML = `
         <div class="ejercicio-gif-container">
-            <img src="${ejercicio.gifUrl}" alt="${ejercicio.name}" class="ejercicio-gif" loading="lazy">
+            ${gifUrl && gifUrl !== 'undefined' ? 
+                `<img src="${gifUrl}" 
+                     alt="${ejercicio.name}" 
+                     class="ejercicio-gif" 
+                     loading="lazy"
+                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'padding: 20px; text-align: center; color: #666;\\'>⚠️ Error cargando GIF<br><small>Limpia el caché y recarga</small></div>'">` 
+                : '<div style="padding: 20px; text-align: center; color: #666;">📦 Sin GIF<br><small>Limpia el caché con el botón morado</small></div>'
+            }
         </div>
         <div class="ejercicio-header">
             <h3 class="ejercicio-nombre">${traducirNombre(ejercicio.name)}</h3>
@@ -390,6 +425,17 @@ buscadorInput.addEventListener('keypress', (e) => {
 filtroMusculo.addEventListener('change', aplicarFiltros);
 filtroTipo.addEventListener('change', aplicarFiltros);
 filtroDificultad.addEventListener('change', aplicarFiltros);
+
+// Botón para limpiar caché
+const btnLimpiarCache = document.getElementById('btn-limpiar-cache');
+if (btnLimpiarCache) {
+    btnLimpiarCache.addEventListener('click', () => {
+        localStorage.removeItem('ejercicios-cache');
+        console.log('Caché limpiado');
+        mostrarNotificacion('Caché limpiado. Recargando ejercicios...');
+        cargarEjercicios();
+    });
+}
 
 // Cargar ejercicios por defecto al iniciar
 document.addEventListener('DOMContentLoaded', () => {

@@ -446,54 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 seccion.dataset.dropListener = 'true';
             }
         });
-                const yaExiste = Array.from(seccion.querySelectorAll('.ejercicio-seleccionado .ejercicio')).some(span => span.textContent === nombre);
-                if (yaExiste) return;
-                let wrapper = document.createElement('div');
-                wrapper.className = 'ejercicio-seleccionado';
-                wrapper.style.display = 'flex';
-                wrapper.style.alignItems = 'center';
-                wrapper.style.gap = '10px';
-                wrapper.draggable = true;
-                wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
-
-                const nombreSpan = document.createElement('span');
-                nombreSpan.className = 'ejercicio';
-                nombreSpan.textContent = nombre;
-
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.min = '1';
-                input.value = '10';
-                input.style.width = '60px';
-                input.style.marginLeft = '8px';
-                input.title = 'Cantidad de repeticiones';
-
-                const iframe = document.createElement('iframe');
-                iframe.width = '200';
-                iframe.height = '120';
-                iframe.src = videoUrl; // SIEMPRE video.url
-                iframe.frameBorder = '0';
-                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-                iframe.setAttribute('allowfullscreen', '');
-
-                const btnEliminar = document.createElement('button');
-                btnEliminar.textContent = '✖';
-                btnEliminar.title = 'Eliminar ejercicio';
-                btnEliminar.style.marginLeft = '8px';
-                btnEliminar.style.background = 'transparent';
-                btnEliminar.style.color = 'var(--color-rojo)';
-                btnEliminar.style.border = 'none';
-                btnEliminar.style.fontSize = '1.2rem';
-                btnEliminar.style.cursor = 'pointer';
-                btnEliminar.onclick = () => { wrapper.remove(); };
-
-                wrapper.appendChild(nombreSpan);
-                wrapper.appendChild(input);
-                wrapper.appendChild(iframe);
-                wrapper.appendChild(btnEliminar);
-                seccion.appendChild(wrapper);
-            });
-        });
+    
     function resetEmom() {
         stopEmom();
         emomCurrentRound = 0;
