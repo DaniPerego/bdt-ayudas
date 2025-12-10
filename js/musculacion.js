@@ -1,5 +1,5 @@
 // ⚠️ CONFIGURA TU API KEY AQUÍ ⚠️
-const API_KEY = 'TU_API_KEY_AQUI'; // Obtén tu key gratis en https://api-ninjas.com/
+const API_KEY = 'ecWRWLvQ2HDs0I+/1Y/PbQ==7fMcNh5f7W1HpfRW'; // Obtén tu key gratis en https://api-ninjas.com/
 const API_URL = 'https://api.api-ninjas.com/v1/exercises';
 
 // Elementos del DOM
