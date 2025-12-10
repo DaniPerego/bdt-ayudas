@@ -47,52 +47,62 @@
         <!-- Filtros -->
         <div class="filtros-container">
             <div class="filtro-grupo">
-                <label for="filtro-musculo">Músculo:</label>
+                <label for="filtro-musculo">Músculo Objetivo:</label>
                 <select id="filtro-musculo">
                     <option value="">Todos</option>
-                    <option value="abdominals">Abdominales</option>
+                    <option value="abs">Abdominales</option>
                     <option value="biceps">Bíceps</option>
                     <option value="triceps">Tríceps</option>
-                    <option value="chest">Pecho</option>
+                    <option value="pectorals">Pectorales</option>
                     <option value="lats">Dorsales</option>
-                    <option value="quadriceps">Cuádriceps</option>
+                    <option value="quads">Cuádriceps</option>
                     <option value="hamstrings">Isquiotibiales</option>
                     <option value="calves">Gemelos</option>
                     <option value="glutes">Glúteos</option>
-                    <option value="shoulders">Hombros</option>
+                    <option value="delts">Hombros</option>
                     <option value="traps">Trapecios</option>
                     <option value="forearms">Antebrazos</option>
+                    <option value="cardiovascular system">Cardio</option>
                 </select>
             </div>
 
             <div class="filtro-grupo">
-                <label for="filtro-tipo">Tipo:</label>
+                <label for="filtro-tipo">Equipamiento:</label>
                 <select id="filtro-tipo">
                     <option value="">Todos</option>
-                    <option value="strength">Fuerza</option>
-                    <option value="cardio">Cardio</option>
-                    <option value="stretching">Estiramiento</option>
-                    <option value="powerlifting">Powerlifting</option>
-                    <option value="plyometrics">Pliométricos</option>
-                    <option value="strongman">Strongman</option>
-                    <option value="olympic_weightlifting">Halterofilia</option>
+                    <option value="body weight">Peso Corporal</option>
+                    <option value="barbell">Barra</option>
+                    <option value="dumbbell">Mancuernas</option>
+                    <option value="cable">Polea/Cable</option>
+                    <option value="kettlebell">Kettlebell</option>
+                    <option value="band">Banda Elástica</option>
+                    <option value="medicine ball">Balón Medicinal</option>
+                    <option value="stability ball">Fitball</option>
+                    <option value="smith machine">Máquina Smith</option>
                 </select>
             </div>
 
             <div class="filtro-grupo">
-                <label for="filtro-dificultad">Dificultad:</label>
+                <label for="filtro-dificultad">Parte del Cuerpo:</label>
                 <select id="filtro-dificultad">
                     <option value="">Todas</option>
-                    <option value="beginner">Principiante</option>
-                    <option value="intermediate">Intermedio</option>
-                    <option value="expert">Experto</option>
+                    <option value="back">Espalda</option>
+                    <option value="chest">Pecho</option>
+                    <option value="shoulders">Hombros</option>
+                    <option value="upper arms">Brazos</option>
+                    <option value="lower arms">Antebrazos</option>
+                    <option value="upper legs">Piernas</option>
+                    <option value="lower legs">Piernas Inferiores</option>
+                    <option value="waist">Cintura/Abdomen</option>
+                    <option value="cardio">Cardio</option>
+                    <option value="neck">Cuello</option>
                 </select>
             </div>
 
             <input type="text" id="buscador-ejercicios" placeholder="Buscar ejercicio..." class="buscador-input">
             
             <button id="btn-buscar" class="btn-buscar">
-                <i class="bi bi-search"></i> Buscar
+                <i class="bi bi-search"></i> Filtrar
             </button>
         </div>
 
@@ -115,14 +125,15 @@
             <div class="mensaje-contenido">
                 <i class="bi bi-exclamation-triangle"></i>
                 <h3>Configuración de API requerida</h3>
-                <p>Para usar esta función, necesitas configurar tu API key de API Ninjas.</p>
+                <p>Para usar esta función, necesitas configurar tu API key de RapidAPI.</p>
                 <ol>
-                    <li>Visita <a href="https://api-ninjas.com/" target="_blank">api-ninjas.com</a></li>
-                    <li>Crea una cuenta gratuita</li>
-                    <li>Copia tu API key del dashboard</li>
-                    <li>Pégala en el archivo <code>js/musculacion.js</code> en la línea 2</li>
+                    <li>Visita <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank">ExerciseDB en RapidAPI</a></li>
+                    <li>Haz clic en "Subscribe to Test" y selecciona el plan <strong>BASIC (GRATIS)</strong></li>
+                    <li>Copia tu "X-RapidAPI-Key" de la sección Code Snippets</li>
+                    <li>Pégala en el archivo <code>js/musculacion.js</code> en la línea 3</li>
                 </ol>
-                <p><strong>Plan gratuito:</strong> 50,000 requests/mes</p>
+                <p><strong>Plan gratuito:</strong> 30 requests/día (se resetea cada 24h)</p>
+                <p><strong>💡 Tip:</strong> Los ejercicios se guardan en caché por 1 día para optimizar el uso.</p>
             </div>
         </div>
     </main>

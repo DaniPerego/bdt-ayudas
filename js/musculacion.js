@@ -1,8 +1,9 @@
-// ⚠️ CONFIGURA TU API KEY AQUÍ ⚠️
-const API_KEY = 'ecWRWLvQ2HDs0I+/1Y/PbQ==7fMcNh5f7W1HpfRW'; // Obtén tu key gratis en https://api-ninjas.com/
-const API_URL = 'https://api.api-ninjas.com/v1/exercises';
+// ⚠️ CONFIGURA TU API KEY DE RAPIDAPI AQUÍ ⚠️
+// Obtén tu key gratis en https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
+const API_KEY = 'd1588f2d0emsh136af77a92e63fep12efacjsn1d6bae24a51b';
+const API_URL = 'https://exercisedb.p.rapidapi.com';
 
-console.log('API Key configurada:', API_KEY ? 'Sí (longitud: ' + API_KEY.length + ')' : 'No');
+console.log('API Key configurada:', API_KEY !== 'TU_RAPIDAPI_KEY_AQUI' ? 'Sí' : 'No');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -20,7 +21,7 @@ let ejerciciosCache = [];
 
 // Verificar si la API key está configurada
 function verificarApiKey() {
-    if (!API_KEY || API_KEY.trim() === '' || API_KEY === 'TU_API_KEY_AQUI') {
+    if (!API_KEY || API_KEY.trim() === '' || API_KEY === 'TU_RAPIDAPI_KEY_AQUI') {
         console.warn('API Key no configurada correctamente');
         mensajeApi.style.display = 'block';
         ejerciciosContainer.style.display = 'none';
@@ -31,54 +32,114 @@ function verificarApiKey() {
     return true;
 }
 
-// Función para buscar ejercicios
-async function buscarEjercicios() {
+// Sistema de caché para reducir llamadas a la API
+function obtenerCacheEjercicios() {
+    const cache = localStorage.getItem('ejercicios-cache');
+    if (!cache) return null;
+    
+    const data = JSON.parse(cache);
+    const ahora = new Date().getTime();
+    const unDia = 24 * 60 * 60 * 1000; // 1 día en milisegundos
+    
+    // Si el cache tiene menos de 1 día, usarlo
+    if (ahora - data.timestamp < unDia) {
+        console.log('Usando ejercicios del caché');
+        return data.ejercicios;
+    }
+    
+    return null;
+}
+
+function guardarCacheEjercicios(ejercicios) {
+    const data = {
+        ejercicios: ejercicios,
+        timestamp: new Date().getTime()
+    };
+    localStorage.setItem('ejercicios-cache', JSON.stringify(data));
+    console.log('Ejercicios guardados en caché');
+}
+
+// Función para cargar todos los ejercicios
+async function cargarEjercicios() {
     if (!verificarApiKey()) return;
 
-    const musculo = filtroMusculo.value;
-    const tipo = filtroTipo.value;
-    const dificultad = filtroDificultad.value;
-    const nombre = buscadorInput.value.trim();
-
-    // Construir parámetros de búsqueda
-    const params = new URLSearchParams();
-    if (musculo) params.append('muscle', musculo);
-    if (tipo) params.append('type', tipo);
-    if (dificultad) params.append('difficulty', dificultad);
-    if (nombre) params.append('name', nombre);
-
-    // Si no hay parámetros, buscar ejercicios de fuerza por defecto
-    if (!params.toString()) {
-        params.append('type', 'strength');
+    // Intentar usar caché primero
+    const ejerciciosCacheados = obtenerCacheEjercicios();
+    if (ejerciciosCacheados) {
+        ejerciciosCache = ejerciciosCacheados;
+        aplicarFiltros();
+        return;
     }
 
     mostrarLoader(true);
 
     try {
-        const response = await fetch(`${API_URL}?${params.toString()}`, {
+        // Cargar todos los ejercicios (solo se hace una vez y se cachea)
+        const response = await fetch(`${API_URL}/exercises?limit=1300`, {
             method: 'GET',
             headers: {
-                'X-Api-Key': API_KEY,
-                'Content-Type': 'application/json'
+                'X-RapidAPI-Key': API_KEY,
+                'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
             }
         });
 
         if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('API Key inválida. Verifica tu configuración.');
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('API Key inválida. Verifica tu configuración en RapidAPI.');
             }
             throw new Error(`Error: ${response.status}`);
         }
 
         const ejercicios = await response.json();
         ejerciciosCache = ejercicios;
-        mostrarEjercicios(ejercicios);
+        guardarCacheEjercicios(ejercicios);
+        aplicarFiltros();
     } catch (error) {
-        console.error('Error al buscar ejercicios:', error);
+        console.error('Error al cargar ejercicios:', error);
         mostrarError(error.message);
     } finally {
         mostrarLoader(false);
     }
+}
+
+// Función para aplicar filtros localmente (sin llamadas a la API)
+function aplicarFiltros() {
+    const musculo = filtroMusculo.value.toLowerCase();
+    const equipamiento = filtroTipo.value.toLowerCase();
+    const parteDelCuerpo = filtroDificultad.value.toLowerCase();
+    const nombre = buscadorInput.value.trim().toLowerCase();
+
+    let ejerciciosFiltrados = ejerciciosCache;
+
+    // Filtrar por músculo objetivo
+    if (musculo) {
+        ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
+            ej.target && ej.target.toLowerCase() === musculo
+        );
+    }
+
+    // Filtrar por equipamiento
+    if (equipamiento) {
+        ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
+            ej.equipment && ej.equipment.toLowerCase() === equipamiento
+        );
+    }
+
+    // Filtrar por parte del cuerpo
+    if (parteDelCuerpo) {
+        ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
+            ej.bodyPart && ej.bodyPart.toLowerCase() === parteDelCuerpo
+        );
+    }
+
+    // Filtrar por nombre
+    if (nombre) {
+        ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
+            ej.name && ej.name.toLowerCase().includes(nombre)
+        );
+    }
+
+    mostrarEjercicios(ejerciciosFiltrados);
 }
 
 // Función para mostrar ejercicios en el DOM
@@ -112,60 +173,60 @@ function crearCardEjercicio(ejercicio, index) {
     card.className = 'ejercicio-card';
     card.style.animationDelay = `${index * 0.05}s`;
 
-    // Traducir dificultad
-    const dificultadES = {
-        'beginner': 'Principiante',
-        'intermediate': 'Intermedio',
-        'expert': 'Experto'
+    // Color según parte del cuerpo
+    const colorParteDelCuerpo = {
+        'back': '#4CAF50',
+        'cardio': '#2196F3',
+        'chest': '#FF5722',
+        'lower arms': '#9C27B0',
+        'lower legs': '#FF9800',
+        'neck': '#795548',
+        'shoulders': '#E91E63',
+        'upper arms': '#3F51B5',
+        'upper legs': '#FFC107',
+        'waist': '#00BCD4'
     };
 
-    // Traducir tipo
-    const tipoES = {
-        'strength': 'Fuerza',
-        'cardio': 'Cardio',
-        'stretching': 'Estiramiento',
-        'powerlifting': 'Powerlifting',
-        'plyometrics': 'Pliométricos',
-        'strongman': 'Strongman',
-        'olympic_weightlifting': 'Halterofilia'
-    };
-
-    // Color según dificultad
-    const colorDificultad = {
-        'beginner': '#4CAF50',
-        'intermediate': '#FF9800',
-        'expert': '#F44336'
-    };
+    const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
 
     card.innerHTML = `
+        <div class="ejercicio-gif-container">
+            <img src="${ejercicio.gifUrl}" alt="${ejercicio.name}" class="ejercicio-gif" loading="lazy">
+        </div>
         <div class="ejercicio-header">
-            <h3 class="ejercicio-nombre">${ejercicio.name}</h3>
-            <span class="ejercicio-dificultad" style="background-color: ${colorDificultad[ejercicio.difficulty]}">
-                ${dificultadES[ejercicio.difficulty] || ejercicio.difficulty}
+            <h3 class="ejercicio-nombre">${traducirNombre(ejercicio.name)}</h3>
+            <span class="ejercicio-badge" style="background-color: ${color}">
+                ${traducirParteDelCuerpo(ejercicio.bodyPart)}
             </span>
         </div>
         <div class="ejercicio-body">
             <div class="ejercicio-info">
                 <div class="info-item">
-                    <i class="bi bi-lightning-charge"></i>
-                    <span><strong>Tipo:</strong> ${tipoES[ejercicio.type] || ejercicio.type}</span>
-                </div>
-                <div class="info-item">
-                    <i class="bi bi-heart-pulse"></i>
-                    <span><strong>Músculo:</strong> ${traducirMusculo(ejercicio.muscle)}</span>
+                    <i class="bi bi-bullseye"></i>
+                    <span><strong>Músculo objetivo:</strong> ${traducirMusculo(ejercicio.target)}</span>
                 </div>
                 <div class="info-item">
                     <i class="bi bi-tools"></i>
                     <span><strong>Equipamiento:</strong> ${traducirEquipamiento(ejercicio.equipment)}</span>
                 </div>
+                ${ejercicio.secondaryMuscles && ejercicio.secondaryMuscles.length > 0 ? `
+                <div class="info-item">
+                    <i class="bi bi-diagram-3"></i>
+                    <span><strong>Músculos secundarios:</strong> ${ejercicio.secondaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
+                </div>
+                ` : ''}
             </div>
+            ${ejercicio.instructions && ejercicio.instructions.length > 0 ? `
             <div class="ejercicio-instrucciones">
                 <h4><i class="bi bi-clipboard-check"></i> Instrucciones:</h4>
-                <p>${ejercicio.instructions}</p>
+                <ol>
+                    ${ejercicio.instructions.map(inst => `<li>${inst}</li>`).join('')}
+                </ol>
             </div>
+            ` : ''}
         </div>
-        <button class="btn-favorito" onclick="toggleFavorito(${index})" title="Agregar a favoritos">
-            <i class="bi bi-heart"></i>
+        <button class="btn-favorito" onclick="toggleFavorito('${ejercicio.id}')" title="Agregar a favoritos">
+            <i class="bi bi-heart${esFavorito(ejercicio.id) ? '-fill' : ''}"></i>
         </button>
     `;
 
@@ -173,43 +234,84 @@ function crearCardEjercicio(ejercicio, index) {
 }
 
 // Funciones de traducción
+function traducirNombre(nombre) {
+    // Capitalizar y mejorar el formato
+    return nombre.split(' ').map(palabra => 
+        palabra.charAt(0).toUpperCase() + palabra.slice(1)
+    ).join(' ');
+}
+
+function traducirParteDelCuerpo(parte) {
+    const traducciones = {
+        'back': 'Espalda',
+        'cardio': 'Cardio',
+        'chest': 'Pecho',
+        'lower arms': 'Antebrazos',
+        'lower legs': 'Piernas Inferiores',
+        'neck': 'Cuello',
+        'shoulders': 'Hombros',
+        'upper arms': 'Brazos',
+        'upper legs': 'Piernas',
+        'waist': 'Cintura/Abdomen'
+    };
+    return traducciones[parte] || parte;
+}
+
 function traducirMusculo(musculo) {
     const traducciones = {
-        'abdominals': 'Abdominales',
-        'biceps': 'Bíceps',
-        'triceps': 'Tríceps',
-        'chest': 'Pecho',
-        'lats': 'Dorsales',
-        'quadriceps': 'Cuádriceps',
-        'hamstrings': 'Isquiotibiales',
-        'calves': 'Gemelos',
-        'glutes': 'Glúteos',
-        'shoulders': 'Hombros',
-        'traps': 'Trapecios',
-        'forearms': 'Antebrazos',
-        'lower_back': 'Zona Lumbar',
-        'middle_back': 'Zona Media de Espalda',
-        'neck': 'Cuello',
         'abductors': 'Abductores',
-        'adductors': 'Aductores'
+        'abs': 'Abdominales',
+        'adductors': 'Aductores',
+        'biceps': 'Bíceps',
+        'calves': 'Gemelos',
+        'cardiovascular system': 'Sistema Cardiovascular',
+        'delts': 'Deltoides',
+        'forearms': 'Antebrazos',
+        'glutes': 'Glúteos',
+        'hamstrings': 'Isquiotibiales',
+        'lats': 'Dorsales',
+        'levator scapulae': 'Elevador de la Escápula',
+        'pectorals': 'Pectorales',
+        'quads': 'Cuádriceps',
+        'serratus anterior': 'Serrato Anterior',
+        'spine': 'Columna',
+        'traps': 'Trapecios',
+        'triceps': 'Tríceps',
+        'upper back': 'Espalda Alta'
     };
     return traducciones[musculo] || musculo;
 }
 
 function traducirEquipamiento(equipamiento) {
     const traducciones = {
+        'assisted': 'Asistido',
+        'band': 'Banda Elástica',
         'barbell': 'Barra',
-        'dumbbell': 'Mancuernas',
-        'body_only': 'Solo Cuerpo',
+        'body weight': 'Peso Corporal',
+        'bosu ball': 'Bosu Ball',
         'cable': 'Polea/Cable',
-        'machine': 'Máquina',
-        'kettlebells': 'Kettlebells',
-        'bands': 'Bandas',
-        'medicine_ball': 'Balón Medicinal',
-        'exercise_ball': 'Fitball',
-        'foam_roll': 'Rodillo de Espuma',
-        'e-z_curl_bar': 'Barra Z',
-        'other': 'Otro'
+        'dumbbell': 'Mancuernas',
+        'elliptical machine': 'Elíptica',
+        'ez barbell': 'Barra Z',
+        'hammer': 'Martillo',
+        'kettlebell': 'Kettlebell',
+        'leverage machine': 'Máquina de Palanca',
+        'medicine ball': 'Balón Medicinal',
+        'olympic barbell': 'Barra Olímpica',
+        'resistance band': 'Banda de Resistencia',
+        'roller': 'Rodillo',
+        'rope': 'Cuerda',
+        'skierg machine': 'Máquina SkiErg',
+        'sled machine': 'Máquina de Trineo',
+        'smith machine': 'Máquina Smith',
+        'stability ball': 'Fitball',
+        'stationary bike': 'Bicicleta Estática',
+        'stepmill machine': 'Máquina Step',
+        'tire': 'Neumático',
+        'trap bar': 'Barra Hexagonal',
+        'upper body ergometer': 'Ergómetro de Tren Superior',
+        'weighted': 'Con Peso',
+        'wheel roller': 'Rueda Abdominal'
     };
     return traducciones[equipamiento] || equipamiento;
 }
@@ -233,21 +335,28 @@ function mostrarError(mensaje) {
 }
 
 // Sistema de favoritos
-function toggleFavorito(index) {
-    const ejercicio = ejerciciosCache[index];
+function esFavorito(ejercicioId) {
+    const favoritos = JSON.parse(localStorage.getItem('ejercicios-favoritos')) || [];
+    return favoritos.includes(ejercicioId);
+}
+
+function toggleFavorito(ejercicioId) {
     let favoritos = JSON.parse(localStorage.getItem('ejercicios-favoritos')) || [];
     
-    const indexFavorito = favoritos.findIndex(fav => fav.name === ejercicio.name);
+    const index = favoritos.indexOf(ejercicioId);
     
-    if (indexFavorito > -1) {
-        favoritos.splice(indexFavorito, 1);
+    if (index > -1) {
+        favoritos.splice(index, 1);
         mostrarNotificacion('Eliminado de favoritos');
     } else {
-        favoritos.push(ejercicio);
+        favoritos.push(ejercicioId);
         mostrarNotificacion('Agregado a favoritos ❤️');
     }
     
     localStorage.setItem('ejercicios-favoritos', JSON.stringify(favoritos));
+    
+    // Recargar la vista para actualizar el ícono
+    aplicarFiltros();
 }
 
 // Mostrar notificación temporal
@@ -268,23 +377,23 @@ function mostrarNotificacion(mensaje) {
 }
 
 // Event Listeners
-btnBuscar.addEventListener('click', buscarEjercicios);
+btnBuscar.addEventListener('click', aplicarFiltros);
 
 // Buscar al presionar Enter
 buscadorInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        buscarEjercicios();
+        aplicarFiltros();
     }
 });
 
-// Buscar al cambiar filtros
-filtroMusculo.addEventListener('change', buscarEjercicios);
-filtroTipo.addEventListener('change', buscarEjercicios);
-filtroDificultad.addEventListener('change', buscarEjercicios);
+// Aplicar filtros al cambiar selecciones
+filtroMusculo.addEventListener('change', aplicarFiltros);
+filtroTipo.addEventListener('change', aplicarFiltros);
+filtroDificultad.addEventListener('change', aplicarFiltros);
 
 // Cargar ejercicios por defecto al iniciar
 document.addEventListener('DOMContentLoaded', () => {
     if (verificarApiKey()) {
-        buscarEjercicios();
+        cargarEjercicios();
     }
 });
