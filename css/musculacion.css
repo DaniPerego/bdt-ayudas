@@ -1,0 +1,448 @@
+/* ========================================
+   ESTILOS PARA PÁGINA DE MUSCULACIÓN
+   ======================================== */
+
+/* Contenedor de filtros */
+.filtros-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 25px;
+    border-radius: 15px;
+    margin: 20px auto;
+    max-width: 1200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.filtro-grupo {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+}
+
+.filtro-grupo label {
+    color: white;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.filtro-grupo select,
+.buscador-input {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filtro-grupo select:focus,
+.buscador-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.buscador-input {
+    flex: 2;
+    min-width: 200px;
+}
+
+.btn-buscar {
+    padding: 12px 30px;
+    background: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-buscar:hover {
+    background: #ff3838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.4);
+}
+
+.btn-buscar:active {
+    transform: translateY(0);
+}
+
+/* Loader/Spinner */
+.loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    gap: 20px;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loader p {
+    color: #667eea;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Contador de resultados */
+.contador-resultados {
+    text-align: center;
+    color: white;
+    font-size: 1.1rem;
+    margin: 20px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Grid de ejercicios */
+.ejercicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Card de ejercicio */
+.ejercicio-card {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ejercicio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.ejercicio-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+/* Header de la card */
+.ejercicio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.ejercicio-nombre {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+    font-weight: 700;
+    flex: 1;
+    text-transform: capitalize;
+}
+
+.ejercicio-dificultad {
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Body de la card */
+.ejercicio-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ejercicio-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.info-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.info-item i {
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.info-item span {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.info-item strong {
+    color: #333;
+}
+
+/* Instrucciones */
+.ejercicio-instrucciones {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.ejercicio-instrucciones h4 {
+    color: #667eea;
+    font-size: 1rem;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ejercicio-instrucciones p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Botón de favorito */
+.btn-favorito {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border: 2px solid #ff4757;
+    color: #ff4757;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.btn-favorito:hover {
+    background: #ff4757;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Mensaje de API */
+.mensaje-api {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 40px;
+    margin: 20px auto;
+    max-width: 800px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.mensaje-contenido {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.mensaje-contenido i {
+    font-size: 3rem;
+    color: #ff9800;
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.mensaje-contenido h3 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.mensaje-contenido p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.mensaje-contenido ol {
+    color: #555;
+    line-height: 2;
+    padding-left: 20px;
+}
+
+.mensaje-contenido code {
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #e83e8c;
+    font-family: monospace;
+}
+
+.mensaje-contenido a {
+    color: #667eea;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.mensaje-contenido a:hover {
+    text-decoration: underline;
+}
+
+/* Mensajes de error y sin resultados */
+.mensaje-error,
+.sin-resultados {
+    text-align: center;
+    padding: 60px 20px;
+    color: white;
+    grid-column: 1 / -1;
+}
+
+.mensaje-error i,
+.sin-resultados i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+    opacity: 0.8;
+}
+
+.mensaje-error h3 {
+    color: #ff4757;
+    margin-bottom: 10px;
+}
+
+.sin-resultados p {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+/* Notificación flotante */
+.notificacion {
+    position: fixed;
+    bottom: -100px;
+    right: 30px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.notificacion.show {
+    bottom: 30px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filtros-container {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .filtro-grupo,
+    .buscador-input {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .btn-buscar {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ejercicios-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 20px;
+    }
+
+    .ejercicio-nombre {
+        font-size: 1.1rem;
+    }
+
+    .notificacion {
+        right: 10px;
+        left: 10px;
+    }
+
+    .notificacion.show {
+        bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filtros-container {
+        padding: 15px;
+    }
+
+    .ejercicio-card {
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+}

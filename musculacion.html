@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ejercicios de Musculación - Bendito Cross</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/musculacion.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    </head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav_logo">
+                <a href="index.html">
+                    <span>Bendito Cross</span>
+                    <span><p>Funcional Gym</p></span>
+                </a>
+            </div>
+            <div class="nav_items" id="_items">
+                <a href="index.html">INICIO</a>
+                <a href="rm.html">% RM</a>
+                <a href="fortime.html">FOR TIME</a>
+                <a href="ejercicios.html">AYUDAS TRAINING</a>
+                <a href="musculacion.html">MUSCULACIÓN</a>
+                <a href="horarios.html">HORARIOS</a>
+                <a href="diccionario.html">DICCIONARIO</a>
+                <a href="tienda.html">TIENDA</a>
+            </div>
+            <div class="nav_toggle" id="_toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="clock-container">
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <main>
+        <h2>EJERCICIOS DE MUSCULACIÓN</h2>
+
+        <!-- Filtros -->
+        <div class="filtros-container">
+            <div class="filtro-grupo">
+                <label for="filtro-musculo">Músculo:</label>
+                <select id="filtro-musculo">
+                    <option value="">Todos</option>
+                    <option value="abdominals">Abdominales</option>
+                    <option value="biceps">Bíceps</option>
+                    <option value="triceps">Tríceps</option>
+                    <option value="chest">Pecho</option>
+                    <option value="lats">Dorsales</option>
+                    <option value="quadriceps">Cuádriceps</option>
+                    <option value="hamstrings">Isquiotibiales</option>
+                    <option value="calves">Gemelos</option>
+                    <option value="glutes">Glúteos</option>
+                    <option value="shoulders">Hombros</option>
+                    <option value="traps">Trapecios</option>
+                    <option value="forearms">Antebrazos</option>
+                </select>
+            </div>
+
+            <div class="filtro-grupo">
+                <label for="filtro-tipo">Tipo:</label>
+                <select id="filtro-tipo">
+                    <option value="">Todos</option>
+                    <option value="strength">Fuerza</option>
+                    <option value="cardio">Cardio</option>
+                    <option value="stretching">Estiramiento</option>
+                    <option value="powerlifting">Powerlifting</option>
+                    <option value="plyometrics">Pliométricos</option>
+                    <option value="strongman">Strongman</option>
+                    <option value="olympic_weightlifting">Halterofilia</option>
+                </select>
+            </div>
+
+            <div class="filtro-grupo">
+                <label for="filtro-dificultad">Dificultad:</label>
+                <select id="filtro-dificultad">
+                    <option value="">Todas</option>
+                    <option value="beginner">Principiante</option>
+                    <option value="intermediate">Intermedio</option>
+                    <option value="expert">Experto</option>
+                </select>
+            </div>
+
+            <input type="text" id="buscador-ejercicios" placeholder="Buscar ejercicio..." class="buscador-input">
+            
+            <button id="btn-buscar" class="btn-buscar">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="loader" style="display: none;">
+            <div class="spinner"></div>
+            <p>Cargando ejercicios...</p>
+        </div>
+
+        <!-- Contador de resultados -->
+        <div id="contador-resultados" class="contador-resultados"></div>
+
+        <!-- Contenedor de ejercicios -->
+        <section class="ejercicios-grid" id="ejercicios-container">
+            <!-- Los ejercicios se cargarán aquí dinámicamente -->
+        </section>
+
+        <!-- Mensaje de configuración de API -->
+        <div id="mensaje-api" class="mensaje-api" style="display: none;">
+            <div class="mensaje-contenido">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h3>Configuración de API requerida</h3>
+                <p>Para usar esta función, necesitas configurar tu API key de API Ninjas.</p>
+                <ol>
+                    <li>Visita <a href="https://api-ninjas.com/" target="_blank">api-ninjas.com</a></li>
+                    <li>Crea una cuenta gratuita</li>
+                    <li>Copia tu API key del dashboard</li>
+                    <li>Pégala en el archivo <code>js/musculacion.js</code> en la línea 2</li>
+                </ol>
+                <p><strong>Plan gratuito:</strong> 50,000 requests/mes</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-distributed">
+        <div class="footer-container">
+            <div class="footer-info">
+                <h3>Bendito Cross</h3>
+                <p class="footer-description">Gimnasio funcional dedicado a mejorar tu salud y bienestar</p>
+            </div>
+            <div class="footer-contact">
+                <p><i class="bi bi-geo-alt"></i> Amado Bonpland 434, Paso de los Libres</p>
+                <p><i class="bi bi-telephone"></i> +54 9 3772 636766</p>
+            </div>
+            <div class="footer-social">
+                <a href="https://www.instagram.com/benditocross/"><i class="bi bi-instagram"></i></a>
+                <a href="https://www.facebook.com/benditocross"><i class="bi bi-facebook"></i></a>
+                <a href="https://wa.me/+5493772636766"><i class="bi bi-whatsapp"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="js/musculacion.js"></script>
+ </body>
+ </html>
