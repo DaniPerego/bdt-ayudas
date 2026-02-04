@@ -723,6 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-carrusel cada 2 segundos
         setInterval(nextSlide, 2000);
     });
+}); // Cierre del DOMContentLoaded
 
 // Reloj en tiempo real
 function updateClock() {

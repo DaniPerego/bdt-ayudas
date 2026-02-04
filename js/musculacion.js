@@ -132,7 +132,13 @@ async function cargarEjercicios() {
         }));
         
         console.log('Ejemplo de ejercicio:', ejerciciosFormateados[0]);
-        ejerciciosCache = ejerciciosFormatead
+        ejerciciosCache = ejerciciosFormateados;
+        guardarCacheEjercicios(ejerciciosFormateados);
+        aplicarFiltros();
+    } catch (error) {
+        console.error('Error al cargar ejercicios:', error);
+        mostrarError(error.message);
+    } finally {
         mostrarLoader(false);
     }
 }
