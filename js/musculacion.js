@@ -1,10 +1,9 @@
-// ⚠️ CONFIGURA TU API KEY DE RAPIDAPI AQUÍ ⚠️
-// Obtén tu key gratis en https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
-const API_KEY = 'd1588f2d0emsh136af77a92e63fep12efacjsn1d6bae24a51b';
-const API_URL = 'https://exercisedb.p.rapidapi.com';
-const API_VERSION = '/v2'; // Usar versión 2 para asegurar que incluya GIFs
+// 🏋️ Usando Wger Exercise Database API (Gratuita - No requiere API Key)
+// Documentación: https://wger.de/en/software/api
+const API_URL = 'https://wger.de/api/v2';
+const LANGUAGE_ID = 2; // 2 = English (español no está muy completo)
 
-console.log('API Key configurada:', API_KEY !== 'TU_RAPIDAPI_KEY_AQUI' ? 'Sí' : 'No');
+console.log('✅ Usando Wger API - Sin límites de requests');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -20,15 +19,9 @@ const contadorResultados = document.getElementById('contador-resultados');
 // Cache de ejercicios para evitar múltiples llamadas
 let ejerciciosCache = [];
 
-// Verificar si la API key está configurada
+// Wger API no requiere autenticación para lectura
 function verificarApiKey() {
-    if (!API_KEY || API_KEY.trim() === '' || API_KEY === 'TU_RAPIDAPI_KEY_AQUI') {
-        console.warn('API Key no configurada correctamente');
-        mensajeApi.style.display = 'block';
-        ejerciciosContainer.style.display = 'none';
-        return false;
-    }
-    console.log('API Key verificada correctamente');
+    // Wger es libre, no necesita verificación
     mensajeApi.style.display = 'none';
     return true;
 }
@@ -98,35 +91,59 @@ async function cargarEjercicios() {
             method: 'GET',
             headers: {
                 'X-RapidAPI-Key': API_KEY,
-                'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-            }
-        });
-
+                'Xejercicios e imágenes de Wger API
+        console.log('Cargando ejercicios desde Wger API...');
+        
+        // Obtener ejercicios (con paginación)
+        let todosLosEjercicios = [];
+        let url = `${API_URL}/exercise/?language=${LANGUAGE_ID}&limit=500`;
+        
+        const response = await fetch(url);
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                throw new Error('API Key inválida. Verifica tu configuración en RapidAPI.');
-            }
             throw new Error(`Error: ${response.status}`);
         }
-
-        const ejercicios = await response.json();
-        console.log('Ejercicios cargados:', ejercicios.length);
-        console.log('Ejemplo de ejercicio completo:', JSON.stringify(ejercicios[0], null, 2));
-        console.log('Propiedades del ejercicio:', Object.keys(ejercicios[0]));
-        console.log('¿Tiene gifUrl?:', 'gifUrl' in ejercicios[0]);
-        console.log('Valor de gifUrl:', ejercicios[0].gifUrl);
-        ejerciciosCache = ejercicios;
-        guardarCacheEjercicios(ejercicios);
-        aplicarFiltros();
-    } catch (error) {
-        console.error('Error al cargar ejercicios:', error);
-        mostrarError(error.message);
-    } finally {
+        
+        const data = await response.json();
+        todosLosEjercicios = data.results;
+        
+        console.log('Ejercicios cargados:', todosLosEjercicios.length);
+        
+        // Cargar imágenes
+        const imagenesResponse = await fetch(`${API_URL}/exerciseimage/?limit=1000`);
+        const imagenesData = await imagenesResponse.json();
+        
+        // Mapear imágenes a ejercicios
+        const imagenesMap = {};
+        imagenesData.results.forEach(img => {
+            if (!imagenesMap[img.exercise]) {
+                imagenesMap[img.exercise] = [];
+            }
+            imagenesMap[img.exercise].push(img.image);
+        });
+        
+        // Formatear ejercicios al formato que espera nuestra app
+        const ejerciciosFormateados = todosLosEjercicios.map(ej => ({
+            id: ej.id.toString(),
+            name: ej.name,
+            description: ej.description?.replace(/<[^>]*>/g, '') || '', // Remover HTML
+            category: ej.category?.name || 'strength',
+            equipment: ej.equipment?.map(e => e.name).join(', ') || 'body weight',
+            primaryMuscles: ej.muscles?.map(m => m.name) || [],
+            secondaryMuscles: ej.muscles_secondary?.map(m => m.name) || [],
+            images: imagenesMap[ej.id] || [],
+            gifUrl: imagenesMap[ej.id]?.[0] || null,
+            // Campos adicionales para compatibilidad
+            bodyPart: ej.category?.name || 'general',
+            target: ej.muscles?.[0]?.name || 'general'
+        }));
+        
+        console.log('Ejemplo de ejercicio:', ejerciciosFormateados[0]);
+        ejerciciosCache = ejerciciosFormatead
         mostrarLoader(false);
     }
 }
 
-// Función para aplicar filtros localmente (sin llamadas a la API)
+// Función para aplicar filtros localmente
 function aplicarFiltros() {
     const musculo = filtroMusculo.value.toLowerCase();
     const equipamiento = filtroTipo.value.toLowerCase();
@@ -138,21 +155,23 @@ function aplicarFiltros() {
     // Filtrar por músculo objetivo
     if (musculo) {
         ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
-            ej.target && ej.target.toLowerCase() === musculo
+            ej.primaryMuscles?.some(m => m.toLowerCase().includes(musculo)) ||
+            ej.target?.toLowerCase().includes(musculo)
         );
     }
 
     // Filtrar por equipamiento
     if (equipamiento) {
         ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
-            ej.equipment && ej.equipment.toLowerCase() === equipamiento
+            ej.equipment && ej.equipment.toLowerCase().includes(equipamiento)
         );
     }
 
     // Filtrar por parte del cuerpo
     if (parteDelCuerpo) {
         ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
-            ej.bodyPart && ej.bodyPart.toLowerCase() === parteDelCuerpo
+            (ej.bodyPart && ej.bodyPart.toLowerCase().includes(parteDelCuerpo)) ||
+            (ej.category && ej.category.toLowerCase().includes(parteDelCuerpo))
         );
     }
 
@@ -213,27 +232,14 @@ function crearCardEjercicio(ejercicio, index) {
 
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
     
-    // Construir la URL del GIF
-    // ExerciseDB usa IDs numéricos pero las imágenes en el repo están organizadas por nombre
-    let gifUrl = ejercicio.gifUrl || ejercicio.gif_url;
-    
-    // Si no viene en la respuesta, construir usando el nombre del ejercicio
-    if (!gifUrl && ejercicio.name) {
-        // Convertir el nombre a formato de carpeta (espacios por guiones bajos, mayúsculas para primera letra)
-        const nombreFormateado = ejercicio.name
-            .split(' ')
-            .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
-            .join('_');
-        
-        // Repositorio público con todos los GIFs de ejercicios organizados por nombre
-        gifUrl = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${nombreFormateado}/0.jpg`;
-    }
+    // Construir la URL de la imagen
+    let gifUrl = ejercicio.gifUrl || ejercicio.images?.[0];
     
     // Debug: mostrar el primer ejercicio
     if (index === 0) {
         console.log('Primer ejercicio completo:', ejercicio);
-        console.log('Nombre formateado:', ejercicio.name);
-        console.log('GIF URL construida:', gifUrl);
+        console.log('Nombre:', ejercicio.name);
+        console.log('Imagen URL:', gifUrl);
     }
 
     card.innerHTML = `
@@ -244,25 +250,27 @@ function crearCardEjercicio(ejercicio, index) {
                      class="ejercicio-gif" 
                      loading="lazy"
                      crossorigin="anonymous"
-                     onerror="console.error('Error al cargar GIF:', '${gifUrl}'); this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Crect fill=%27%23f0f0f0%27 width=%27200%27 height=%27200%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 font-size=%2716%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27%23666%27%3E⚠️ Error cargando GIF%3C/text%3E%3C/svg%3E';">` 
-                : '<div style="padding: 20px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px;"><div style="font-size: 48px;">🏋️</div><small>GIF no disponible</small></div>'
+                     onerror="console.error('Error al cargar imagen:', '${gifUrl}'); this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding: 40px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px;\\'><div style=\\'font-size: 48px;\\'>🏋️</div><small>Imagen no disponible</small></div>';">` 
+                : '<div style="padding: 40px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px; height: 100%;"><div style="font-size: 48px;">🏋️</div><small>Sin imagen</small></div>'
             }
         </div>
         <div class="ejercicio-header">
-            <h3 class="ejercicio-nombre">${traducirNombre(ejercicio.name)}</h3>
+            <h3 class="ejercicio-nombre">${ejercicio.name}</h3>
             <span class="ejercicio-badge" style="background-color: ${color}">
-                ${traducirParteDelCuerpo(ejercicio.bodyPart)}
+                ${traducirParteDelCuerpo(ejercicio.bodyPart || ejercicio.category)}
             </span>
         </div>
         <div class="ejercicio-body">
             <div class="ejercicio-info">
+                ${ejercicio.primaryMuscles && ejercicio.primaryMuscles.length > 0 ? `
                 <div class="info-item">
                     <i class="bi bi-bullseye"></i>
-                    <span><strong>Músculo objetivo:</strong> ${traducirMusculo(ejercicio.target)}</span>
+                    <span><strong>Músculos principales:</strong> ${ejercicio.primaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
                 </div>
+                ` : ''}
                 <div class="info-item">
                     <i class="bi bi-tools"></i>
-                    <span><strong>Equipamiento:</strong> ${traducirEquipamiento(ejercicio.equipment)}</span>
+                    <span><strong>Equipamiento:</strong> ${traducirEquipamiento(ejercicio.equipment || 'body weight')}</span>
                 </div>
                 ${ejercicio.secondaryMuscles && ejercicio.secondaryMuscles.length > 0 ? `
                 <div class="info-item">
@@ -270,15 +278,13 @@ function crearCardEjercicio(ejercicio, index) {
                     <span><strong>Músculos secundarios:</strong> ${ejercicio.secondaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
                 </div>
                 ` : ''}
+                ${ejercicio.description ? `
+                <div class="info-item">
+                    <i class="bi bi-info-circle"></i>
+                    <span>${ejercicio.description.substring(0, 200)}${ejercicio.description.length > 200 ? '...' : ''}</span>
+                </div>
+                ` : ''}
             </div>
-            ${ejercicio.instructions && ejercicio.instructions.length > 0 ? `
-            <div class="ejercicio-instrucciones">
-                <h4><i class="bi bi-clipboard-check"></i> Instrucciones:</h4>
-                <ol>
-                    ${ejercicio.instructions.map(inst => `<li>${inst}</li>`).join('')}
-                </ol>
-            </div>
-            ` : ''}
         </div>
         <button class="btn-favorito" onclick="toggleFavorito('${ejercicio.id}')" title="Agregar a favoritos">
             <i class="bi bi-heart${esFavorito(ejercicio.id) ? '-fill' : ''}"></i>
