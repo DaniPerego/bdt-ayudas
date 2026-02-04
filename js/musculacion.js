@@ -1,10 +1,6 @@
-// 🏋️ Usando Wger API (Gratuita, sin registro, con imágenes animadas)
-// API: https://wger.de/api/v2/
-// 100% gratuita, sin límites, sin necesidad de API key
-const EXERCISES_API_URL = 'https://wger.de/api/v2/exercise/?language=2&limit=999';
-const IMAGES_API_URL = 'https://wger.de/api/v2/exerciseimage/';
-
-console.log('✅ Usando Wger API - Gratuita y sin límites');
+// 🏋️ Usando GIFs estáticos de Tenor (Sin API, sin login, sin límites)
+// GIFs públicos de ejercicios - 100% gratuito
+console.log('✅ Usando GIFs públicos - Sin API, sin login, sin límites');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -20,7 +16,7 @@ const contadorResultados = document.getElementById('contador-resultados');
 // Cache de ejercicios para evitar múltiples llamadas
 let ejerciciosCache = [];
 
-// Wger API no requiere autenticación
+// No requiere autenticación
 function verificarApiKey() {
     mensajeApi.style.display = 'none';
     return true;
@@ -75,58 +71,70 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        // Cargar ejercicios desde Wger API
-        console.log('Cargando ejercicios desde Wger API...');
+        console.log('Cargando ejercicios con GIFs públicos...');
         
-        // Cargar ejercicios e imágenes en paralelo
-        const [ejerciciosResponse, imagenesResponse] = await Promise.all([
-            fetch(EXERCISES_API_URL),
-            fetch(IMAGES_API_URL + '?limit=999')
-        ]);
+        // Lista de ejercicios con GIFs públicos de Tenor
+        const ejerciciosBase = [
+            // Pecho
+            { name: 'Push Ups', gifUrl: 'https://media.tenor.com/5tJv-Sg1QfYAAAAM/pushup-push-up.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'body weight' },
+            { name: 'Bench Press', gifUrl: 'https://media.tenor.com/YJ9Yw1kq8EUAAAAM/bench-press.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
+            { name: 'Dumbbell Flyes', gifUrl: 'https://media.tenor.com/3LXQCcq4eaYAAAAM/dumbbell-flyes.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'dumbbell' },
+            { name: 'Incline Press', gifUrl: 'https://media.tenor.com/-8hPg_RdMRoAAAAM/incline-bench-press.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
+            
+            // Espalda
+            { name: 'Pull Ups', gifUrl: 'https://media.tenor.com/67vDqhHoSTYAAAAM/pull-ups.gif', bodyPart: 'back', target: 'lats', equipment: 'body weight' },
+            { name: 'Bent Over Row', gifUrl: 'https://media.tenor.com/JRX0nTbS6AkAAAAM/barbell-row.gif', bodyPart: 'back', target: 'lats', equipment: 'barbell' },
+            { name: 'Deadlift', gifUrl: 'https://media.tenor.com/fHjcV5dmjUYAAAAM/deadlift.gif', bodyPart: 'back', target: 'spine', equipment: 'barbell' },
+            { name: 'Lat Pulldown', gifUrl: 'https://media.tenor.com/0RwqH9fKHgUAAAAM/lat-pulldown.gif', bodyPart: 'back', target: 'lats', equipment: 'cable' },
+            
+            // Piernas
+            { name: 'Squats', gifUrl: 'https://media.tenor.com/gZHrMDVn1rUAAAAM/squat.gif', bodyPart: 'upper legs', target: 'quads', equipment: 'barbell' },
+            { name: 'Lunges', gifUrl: 'https://media.tenor.com/KnZa-5LxYKoAAAAM/lunge.gif', bodyPart: 'upper legs', target: 'quads', equipment: 'body weight' },
+            { name: 'Leg Press', gifUrl: 'https://media.tenor.com/Z7sQ3xOHVOAAAAAM/leg-press.gif', bodyPart: 'upper legs', target: 'quads', equipment: 'leverage machine' },
+            { name: 'Leg Curl', gifUrl: 'https://media.tenor.com/-VUvCJPLbZYAAAAM/leg-curl.gif', bodyPart: 'upper legs', target: 'hamstrings', equipment: 'leverage machine' },
+            { name: 'Calf Raises', gifUrl: 'https://media.tenor.com/8v5gJCfDMOgAAAAM/calf-raise.gif', bodyPart: 'lower legs', target: 'calves', equipment: 'body weight' },
+            
+            // Hombros
+            { name: 'Shoulder Press', gifUrl: 'https://media.tenor.com/hJrDHdKnzV0AAAAM/shoulder-press.gif', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
+            { name: 'Lateral Raises', gifUrl: 'https://media.tenor.com/d-qJQX9qQpkAAAAM/lateral-raise.gif', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
+            { name: 'Front Raises', gifUrl: 'https://media.tenor.com/vL5HZbzDkYIAAAAM/front-raise.gif', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
+            
+            // Brazos
+            { name: 'Bicep Curls', gifUrl: 'https://media.tenor.com/0hgMgLDjdy0AAAAM/bicep-curl.gif', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
+            { name: 'Hammer Curls', gifUrl: 'https://media.tenor.com/f-WJLkgOYaAAAAAM/hammer-curl.gif', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
+            { name: 'Tricep Dips', gifUrl: 'https://media.tenor.com/cxJqLsMv7MIAAAAM/tricep-dips.gif', bodyPart: 'upper arms', target: 'triceps', equipment: 'body weight' },
+            { name: 'Skull Crushers', gifUrl: 'https://media.tenor.com/QEXqDMbAGVkAAAAM/skull-crusher.gif', bodyPart: 'upper arms', target: 'triceps', equipment: 'barbell' },
+            { name: 'Tricep Extensions', gifUrl: 'https://media.tenor.com/3wZaKx_q0YAAAAAM/tricep-extension.gif', bodyPart: 'upper arms', target: 'triceps', equipment: 'dumbbell' },
+            
+            // Core/Abdomen
+            { name: 'Crunches', gifUrl: 'https://media.tenor.com/6mFBhgE0wOkAAAAM/crunches.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Plank', gifUrl: 'https://media.tenor.com/pLx4dqF0COUAAAAM/plank.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Russian Twists', gifUrl: 'https://media.tenor.com/7gXxQ0aUxXoAAAAM/russian-twist.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Leg Raises', gifUrl: 'https://media.tenor.com/8OPzQLu-yJsAAAAM/leg-raise.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Mountain Climbers', gifUrl: 'https://media.tenor.com/P9vfMsO3VksAAAAM/mountain-climber.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            
+            // Cardio
+            { name: 'Burpees', gifUrl: 'https://media.tenor.com/bBvW3DH5spIAAAAM/burpees.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
+            { name: 'Jumping Jacks', gifUrl: 'https://media.tenor.com/I9TkqxWqq28AAAAM/jumping-jacks.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
+            { name: 'Jump Rope', gifUrl: 'https://media.tenor.com/F8GqMWDjZFQAAAAM/jump-rope.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'rope' },
+            { name: 'High Knees', gifUrl: 'https://media.tenor.com/Ek4YGhLkNqYAAAAM/high-knees.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
+        ];
         
-        if (!ejerciciosResponse.ok) {
-            throw new Error(`Error ${ejerciciosResponse.status}: ${ejerciciosResponse.statusText}`);
-        }
+        // Procesar ejercicios
+        const ejerciciosProcesados = ejerciciosBase.map((ej, index) => ({
+            id: `ex-${index + 1}`,
+            name: ej.name,
+            description: `Ejercicio de ${traducirParteDelCuerpo(ej.bodyPart)}`,
+            category: ej.bodyPart,
+            equipment: ej.equipment,
+            muscles: [ej.target],
+            secondaryMuscles: [],
+            gifUrl: ej.gifUrl,
+            bodyPart: ej.bodyPart,
+            target: ej.target
+        }));
         
-        const ejerciciosData = await ejerciciosResponse.json();
-        const ejercicios = ejerciciosData.results || [];
-        
-        // Crear un mapa de imágenes por ejercicio
-        const imagenesMap = {};
-        if (imagenesResponse.ok) {
-            const imagenesData = await imagenesResponse.json();
-            imagenesData.results?.forEach(img => {
-                if (!imagenesMap[img.exercise]) {
-                    imagenesMap[img.exercise] = img.image;
-                }
-            });
-            console.log('Imágenes cargadas:', Object.keys(imagenesMap).length);
-        }
-        
-        console.log('Ejercicios cargados:', ejercicios.length);
-        console.log('Ejemplo de ejercicio:', ejercicios[0]);
-        
-        // Procesar ejercicios con las imágenes
-        const ejerciciosProcesados = ejercicios.map(ej => {
-            const gifUrl = imagenesMap[ej.id] || null;
-            return {
-                id: ej.id,
-                name: ej.name || 'Sin nombre',
-                description: ej.description || '',
-                category: ej.category?.name || 'General',
-                equipment: Array.isArray(ej.equipment) && ej.equipment.length > 0 
-                    ? ej.equipment.map(eq => eq.name || eq).join(', ') 
-                    : 'Peso Corporal',
-                muscles: Array.isArray(ej.muscles) ? ej.muscles.map(m => m.name || m) : [],
-                secondaryMuscles: Array.isArray(ej.muscles_secondary) ? ej.muscles_secondary.map(m => m.name || m) : [],
-                gifUrl: gifUrl,
-                bodyPart: ej.category?.name || 'General',
-                target: (Array.isArray(ej.muscles) && ej.muscles[0]) ? (ej.muscles[0].name || ej.muscles[0]) : 'General'
-            };
-        });
-        
-        const conImagenes = ejerciciosProcesados.filter(e => e.gifUrl).length;
-        console.log(`✅ ${ejerciciosProcesados.length} ejercicios procesados (${conImagenes} con imágenes)`);
+        console.log(`✅ ${ejerciciosProcesados.length} ejercicios cargados con GIFs`);
         
         ejerciciosCache = ejerciciosProcesados;
         guardarCacheEjercicios(ejerciciosProcesados);
