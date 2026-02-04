@@ -36,16 +36,6 @@ function obtenerCacheEjercicios() {
         const ahora = new Date().getTime();
         const unDia = 24 * 60 * 60 * 1000; // 1 día en milisegundos
         
-        // Verificar que los ejercicios tengan gifUrl
-        if (data.ejercicios && data.ejercicios.length > 0) {
-            const primerEjercicio = data.ejercicios[0];
-            if (!primerEjercicio.gifUrl) {
-                console.warn('Caché corrupto detectado (sin GIFs). Limpiando...');
-                localStorage.removeItem('ejercicios-cache');
-                return null;
-            }
-        }
-        
         // Si el cache tiene menos de 1 día, usarlo
         if (ahora - data.timestamp < unDia) {
             console.log('Usando ejercicios del caché (' + data.ejercicios.length + ' ejercicios)');
@@ -117,18 +107,23 @@ async function cargarEjercicios() {
         console.log('Ejemplo de ejercicio:', ejercicios[0]);
         
         // Procesar ejercicios con las imágenes
-        const ejerciciosProcesados = ejercicios.map(ej => ({
-            id: ej.id,
-            name: ej.name,
-            description: ej.description,
-            category: ej.category?.name || 'general',
-            equipment: ej.equipment?.map(eq => eq.name).join(', ') || 'body weight',
-            muscles: ej.muscles?.map(m => m.name) || [],
-            secondaryMuscles: ej.muscles_secondary?.map(m => m.name) || [],
-            gifUrl: imagenesMap[ej.id] || null,
-            bodyPart: ej.category?.name || 'general',
-            target: ej.muscles?.[0]?.name || 'general'
-        }));
+        const ejerciciosProcesados = ejercicios.map(ej => {
+            const gifUrl = imagenesMap[ej.id] || null;
+            return {
+                id: ej.id,
+                name: ej.name || 'Sin nombre',
+                description: ej.description || '',
+                category: ej.category?.name || 'General',
+                equipment: Array.isArray(ej.equipment) && ej.equipment.length > 0 
+                    ? ej.equipment.map(eq => eq.name || eq).join(', ') 
+                    : 'Peso Corporal',
+                muscles: Array.isArray(ej.muscles) ? ej.muscles.map(m => m.name || m) : [],
+                secondaryMuscles: Array.isArray(ej.muscles_secondary) ? ej.muscles_secondary.map(m => m.name || m) : [],
+                gifUrl: gifUrl,
+                bodyPart: ej.category?.name || 'General',
+                target: (Array.isArray(ej.muscles) && ej.muscles[0]) ? (ej.muscles[0].name || ej.muscles[0]) : 'General'
+            };
+        });
         
         const conImagenes = ejerciciosProcesados.filter(e => e.gifUrl).length;
         console.log(`✅ ${ejerciciosProcesados.length} ejercicios procesados (${conImagenes} con imágenes)`);
