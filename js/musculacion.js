@@ -198,8 +198,12 @@ function crearCardEjercicio(ejercicio, index) {
 
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
     
-    // Construir la URL de la imagen
-    let gifUrl = ejercicio.gifUrl || ejercicio.images?.[0];
+    // Construir la URL de la imagen desde GitHub
+    let gifUrl = null;
+    if (ejercicio.images && ejercicio.images.length > 0) {
+        // Las imágenes vienen como rutas relativas, ej: "Air_Bike/0.jpg"
+        gifUrl = IMAGES_BASE_URL + ejercicio.images[0];
+    }
     
     // Debug: mostrar el primer ejercicio
     if (index === 0) {
@@ -210,12 +214,11 @@ function crearCardEjercicio(ejercicio, index) {
 
     card.innerHTML = `
         <div class="ejercicio-gif-container">
-            ${gifUrl && gifUrl !== 'undefined' && gifUrl !== 'null' ? 
+            ${gifUrl ? 
                 `<img src="${gifUrl}" 
                      alt="${ejercicio.name}" 
                      class="ejercicio-gif" 
                      loading="lazy"
-                     crossorigin="anonymous"
                      onerror="console.error('Error al cargar imagen:', '${gifUrl}'); this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding: 40px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px;\\'><div style=\\'font-size: 48px;\\'>🏋️</div><small>Imagen no disponible</small></div>';">` 
                 : '<div style="padding: 40px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px; height: 100%;"><div style="font-size: 48px;">🏋️</div><small>Sin imagen</small></div>'
             }
@@ -232,12 +235,8 @@ function crearCardEjercicio(ejercicio, index) {
                 <div class="info-item">
                     <i class="bi bi-bullseye"></i>
                     <span><strong>Músculos principales:</strong> ${ejercicio.primaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
-                </div> desde GitHub
-    let gifUrl = null;
-    if (ejercicio.images && ejercicio.images.length > 0) {
-        // Las imágenes vienen como rutas relativas, ej: "Air_Bike/0.jpg"
-        gifUrl = IMAGES_BASE_URL + ejercicio.images[0];
-    }
+                </div>
+                ` : ''}
                 <div class="info-item">
                     <i class="bi bi-tools"></i>
                     <span><strong>Equipamiento:</strong> ${traducirEquipamiento(ejercicio.equipment || 'body weight')}</span>
@@ -246,12 +245,6 @@ function crearCardEjercicio(ejercicio, index) {
                 <div class="info-item">
                     <i class="bi bi-diagram-3"></i>
                     <span><strong>Músculos secundarios:</strong> ${ejercicio.secondaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
-                </div>
-                ` : ''}
-                ${ejercicio.description ? `
-                <div class="info-item">
-                    <i class="bi bi-info-circle"></i>
-                    <span>${ejercicio.description.substring(0, 200)}${ejercicio.description.length > 200 ? '...' : ''}</span>
                 </div>
                 ` : ''}
             </div>
