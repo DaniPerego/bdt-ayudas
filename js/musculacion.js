@@ -1,6 +1,6 @@
-// 🏋️ Usando GIFs estáticos de Tenor (Sin API, sin login, sin límites)
-// GIFs públicos de ejercicios - 100% gratuito
-console.log('✅ Usando GIFs públicos - Sin API, sin login, sin límites');
+// 🏋️ Usando GIFs públicos de ExerciseDB CDN (Sin API, sin login, sin límites)
+// CDN público con GIFs animados reales de ejercicios
+console.log('✅ Usando ExerciseDB CDN público - GIFs animados reales');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -73,51 +73,51 @@ async function cargarEjercicios() {
     try {
         console.log('Cargando ejercicios con GIFs públicos...');
         
-        // Lista de ejercicios con GIFs públicos de Tenor
+        // Lista de ejercicios con GIFs públicos de ExerciseDB (CDN público)
         const ejerciciosBase = [
             // Pecho
-            { name: 'Push Ups', gifUrl: 'https://media.tenor.com/5tJv-Sg1QfYAAAAM/pushup-push-up.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'body weight' },
-            { name: 'Bench Press', gifUrl: 'https://media.tenor.com/YJ9Yw1kq8EUAAAAM/bench-press.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
-            { name: 'Dumbbell Flyes', gifUrl: 'https://media.tenor.com/3LXQCcq4eaYAAAAM/dumbbell-flyes.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'dumbbell' },
-            { name: 'Incline Press', gifUrl: 'https://media.tenor.com/-8hPg_RdMRoAAAAM/incline-bench-press.gif', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
+            { name: 'Push Ups', gifUrl: 'https://v2.exercisedb.io/image/4mh9C9F7TLWwKY', bodyPart: 'chest', target: 'pectorals', equipment: 'body weight' },
+            { name: 'Bench Press', gifUrl: 'https://v2.exercisedb.io/image/VUtlGbHXn6IgsH', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
+            { name: 'Dumbbell Flyes', gifUrl: 'https://v2.exercisedb.io/image/naCfx5WmBGXOT0', bodyPart: 'chest', target: 'pectorals', equipment: 'dumbbell' },
+            { name: 'Incline Press', gifUrl: 'https://v2.exercisedb.io/image/Zqhz-Pg6KxoEDz', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
             
             // Espalda
-            { name: 'Pull Ups', gifUrl: 'https://media.tenor.com/67vDqhHoSTYAAAAM/pull-ups.gif', bodyPart: 'back', target: 'lats', equipment: 'body weight' },
-            { name: 'Bent Over Row', gifUrl: 'https://media.tenor.com/JRX0nTbS6AkAAAAM/barbell-row.gif', bodyPart: 'back', target: 'lats', equipment: 'barbell' },
-            { name: 'Deadlift', gifUrl: 'https://media.tenor.com/fHjcV5dmjUYAAAAM/deadlift.gif', bodyPart: 'back', target: 'spine', equipment: 'barbell' },
-            { name: 'Lat Pulldown', gifUrl: 'https://media.tenor.com/0RwqH9fKHgUAAAAM/lat-pulldown.gif', bodyPart: 'back', target: 'lats', equipment: 'cable' },
+            { name: 'Pull Ups', gifUrl: 'https://v2.exercisedb.io/image/Rp7VPJKynsH4uV', bodyPart: 'back', target: 'lats', equipment: 'body weight' },
+            { name: 'Bent Over Row', gifUrl: 'https://v2.exercisedb.io/image/8pRRXC8KaD-RUp', bodyPart: 'back', target: 'lats', equipment: 'barbell' },
+            { name: 'Deadlift', gifUrl: 'https://v2.exercisedb.io/image/L8-knc1vwZu5Kx', bodyPart: 'back', target: 'spine', equipment: 'barbell' },
+            { name: 'Lat Pulldown', gifUrl: 'https://v2.exercisedb.io/image/8j1Bp5B5PGwQhN', bodyPart: 'back', target: 'lats', equipment: 'cable' },
             
             // Piernas
-            { name: 'Squats', gifUrl: 'https://media.tenor.com/gZHrMDVn1rUAAAAM/squat.gif', bodyPart: 'upper legs', target: 'quads', equipment: 'barbell' },
-            { name: 'Lunges', gifUrl: 'https://media.tenor.com/KnZa-5LxYKoAAAAM/lunge.gif', bodyPart: 'upper legs', target: 'quads', equipment: 'body weight' },
-            { name: 'Leg Press', gifUrl: 'https://media.tenor.com/Z7sQ3xOHVOAAAAAM/leg-press.gif', bodyPart: 'upper legs', target: 'quads', equipment: 'leverage machine' },
-            { name: 'Leg Curl', gifUrl: 'https://media.tenor.com/-VUvCJPLbZYAAAAM/leg-curl.gif', bodyPart: 'upper legs', target: 'hamstrings', equipment: 'leverage machine' },
-            { name: 'Calf Raises', gifUrl: 'https://media.tenor.com/8v5gJCfDMOgAAAAM/calf-raise.gif', bodyPart: 'lower legs', target: 'calves', equipment: 'body weight' },
+            { name: 'Squats', gifUrl: 'https://v2.exercisedb.io/image/S1TJEy-u6ELb6Z', bodyPart: 'upper legs', target: 'quads', equipment: 'barbell' },
+            { name: 'Lunges', gifUrl: 'https://v2.exercisedb.io/image/e7dA1fLtVLixzg', bodyPart: 'upper legs', target: 'quads', equipment: 'body weight' },
+            { name: 'Leg Press', gifUrl: 'https://v2.exercisedb.io/image/nIxtSXZvA8v2pV', bodyPart: 'upper legs', target: 'quads', equipment: 'leverage machine' },
+            { name: 'Leg Curl', gifUrl: 'https://v2.exercisedb.io/image/rtQ4Y3YIVf3vmy', bodyPart: 'upper legs', target: 'hamstrings', equipment: 'leverage machine' },
+            { name: 'Calf Raises', gifUrl: 'https://v2.exercisedb.io/image/5avV7Zai9nP7gF', bodyPart: 'lower legs', target: 'calves', equipment: 'body weight' },
             
             // Hombros
-            { name: 'Shoulder Press', gifUrl: 'https://media.tenor.com/hJrDHdKnzV0AAAAM/shoulder-press.gif', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
-            { name: 'Lateral Raises', gifUrl: 'https://media.tenor.com/d-qJQX9qQpkAAAAM/lateral-raise.gif', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
-            { name: 'Front Raises', gifUrl: 'https://media.tenor.com/vL5HZbzDkYIAAAAM/front-raise.gif', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
+            { name: 'Shoulder Press', gifUrl: 'https://v2.exercisedb.io/image/QYk0iQJ1Nh9fny', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
+            { name: 'Lateral Raises', gifUrl: 'https://v2.exercisedb.io/image/tXGJLFQ0Zv2Tm5', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
+            { name: 'Front Raises', gifUrl: 'https://v2.exercisedb.io/image/zv0u3kMdVgLQBB', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
             
             // Brazos
-            { name: 'Bicep Curls', gifUrl: 'https://media.tenor.com/0hgMgLDjdy0AAAAM/bicep-curl.gif', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
-            { name: 'Hammer Curls', gifUrl: 'https://media.tenor.com/f-WJLkgOYaAAAAAM/hammer-curl.gif', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
-            { name: 'Tricep Dips', gifUrl: 'https://media.tenor.com/cxJqLsMv7MIAAAAM/tricep-dips.gif', bodyPart: 'upper arms', target: 'triceps', equipment: 'body weight' },
-            { name: 'Skull Crushers', gifUrl: 'https://media.tenor.com/QEXqDMbAGVkAAAAM/skull-crusher.gif', bodyPart: 'upper arms', target: 'triceps', equipment: 'barbell' },
-            { name: 'Tricep Extensions', gifUrl: 'https://media.tenor.com/3wZaKx_q0YAAAAAM/tricep-extension.gif', bodyPart: 'upper arms', target: 'triceps', equipment: 'dumbbell' },
+            { name: 'Bicep Curls', gifUrl: 'https://v2.exercisedb.io/image/2gvTP6rqNUwJy5', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
+            { name: 'Hammer Curls', gifUrl: 'https://v2.exercisedb.io/image/O0TI2qzUbMa3cY', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
+            { name: 'Tricep Dips', gifUrl: 'https://v2.exercisedb.io/image/aN2aXQhbUFD9cp', bodyPart: 'upper arms', target: 'triceps', equipment: 'body weight' },
+            { name: 'Skull Crushers', gifUrl: 'https://v2.exercisedb.io/image/E1Hd0kZQZFCfxI', bodyPart: 'upper arms', target: 'triceps', equipment: 'barbell' },
+            { name: 'Tricep Extensions', gifUrl: 'https://v2.exercisedb.io/image/mWq02y39NbD-xN', bodyPart: 'upper arms', target: 'triceps', equipment: 'dumbbell' },
             
             // Core/Abdomen
-            { name: 'Crunches', gifUrl: 'https://media.tenor.com/6mFBhgE0wOkAAAAM/crunches.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Plank', gifUrl: 'https://media.tenor.com/pLx4dqF0COUAAAAM/plank.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Russian Twists', gifUrl: 'https://media.tenor.com/7gXxQ0aUxXoAAAAM/russian-twist.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Leg Raises', gifUrl: 'https://media.tenor.com/8OPzQLu-yJsAAAAM/leg-raise.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Mountain Climbers', gifUrl: 'https://media.tenor.com/P9vfMsO3VksAAAAM/mountain-climber.gif', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Crunches', gifUrl: 'https://v2.exercisedb.io/image/bj4AwLpXNH5agq', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Plank', gifUrl: 'https://v2.exercisedb.io/image/OW6v7o1XpD9kBx', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Russian Twists', gifUrl: 'https://v2.exercisedb.io/image/qyxfhZPbZFNDe5', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Leg Raises', gifUrl: 'https://v2.exercisedb.io/image/XGlpXWdFnBk7F0', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
+            { name: 'Mountain Climbers', gifUrl: 'https://v2.exercisedb.io/image/3zXKWnwb3CnGjT', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
             
             // Cardio
-            { name: 'Burpees', gifUrl: 'https://media.tenor.com/bBvW3DH5spIAAAAM/burpees.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
-            { name: 'Jumping Jacks', gifUrl: 'https://media.tenor.com/I9TkqxWqq28AAAAM/jumping-jacks.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
-            { name: 'Jump Rope', gifUrl: 'https://media.tenor.com/F8GqMWDjZFQAAAAM/jump-rope.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'rope' },
-            { name: 'High Knees', gifUrl: 'https://media.tenor.com/Ek4YGhLkNqYAAAAM/high-knees.gif', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
+            { name: 'Burpees', gifUrl: 'https://v2.exercisedb.io/image/SuILD-U8GQF1s1', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
+            { name: 'Jumping Jacks', gifUrl: 'https://v2.exercisedb.io/image/W8i5LVMRaJkpGE', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
+            { name: 'Jump Rope', gifUrl: 'https://v2.exercisedb.io/image/d4-b39E4qy2QWw', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'rope' },
+            { name: 'High Knees', gifUrl: 'https://v2.exercisedb.io/image/YxNRZzPbvz1MXB', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
         ];
         
         // Procesar ejercicios
