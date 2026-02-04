@@ -99,7 +99,7 @@ async function cargarEjercicios() {
         
         // Los datos ya vienen en el formato correcto
         ejerciciosCache = ejercicios;
-        guardarCacheEjercicios(ejerciciosFormateados);
+        guardarCacheEjercicios(ejercicios);
         aplicarFiltros();
     } catch (error) {
         console.error('Error al cargar ejercicios:', error);
