@@ -1,9 +1,9 @@
-// 🏋️ Usando Wger Exercise Database API (Gratuita - No requiere API Key)
-// Documentación: https://wger.de/en/software/api
-const API_URL = 'https://wger.de/api/v2';
-const LANGUAGE_ID = 2; // 2 = English (español no está muy completo)
+// 🏋️ Usando JSON estático del repositorio de GitHub (Sin API, sin límites)
+// Repositorio: https://github.com/yuhonas/free-exercise-db
+const EXERCISES_JSON_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
+const IMAGES_BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 
-console.log('✅ Usando Wger API - Sin límites de requests');
+console.log('✅ Usando datos estáticos de GitHub - Sin límites, sin CORS');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -19,9 +19,9 @@ const contadorResultados = document.getElementById('contador-resultados');
 // Cache de ejercicios para evitar múltiples llamadas
 let ejerciciosCache = [];
 
-// Wger API no requiere autenticación para lectura
+// No requiere autenticación
 function verificarApiKey() {
-    // Wger es libre, no necesita verificación
+    // GitHub raw es público, no necesita verificación
     mensajeApi.style.display = 'none';
     return true;
 }
@@ -85,54 +85,20 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        // Cargar ejercicios e imágenes de Wger API
-        console.log('Cargando ejercicios desde Wger API...');
+        // Cargar JSON completo desde GitHub
+        console.log('Cargando ejercicios desde GitHub...');
         
-        // Obtener ejercicios (con paginación)
-        let todosLosEjercicios = [];
-        let url = `${API_URL}/exercise/?language=${LANGUAGE_ID}&limit=500`;
-        
-        const response = await fetch(url);
+        const response = await fetch(EXERCISES_JSON_URL);
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
         }
         
-        const data = await response.json();
-        todosLosEjercicios = data.results;
+        const ejercicios = await response.json();
+        console.log('Ejercicios cargados:', ejercicios.length);
+        console.log('Ejemplo de ejercicio:', ejercicios[0]);
         
-        console.log('Ejercicios cargados:', todosLosEjercicios.length);
-        
-        // Cargar imágenes
-        const imagenesResponse = await fetch(`${API_URL}/exerciseimage/?limit=1000`);
-        const imagenesData = await imagenesResponse.json();
-        
-        // Mapear imágenes a ejercicios
-        const imagenesMap = {};
-        imagenesData.results.forEach(img => {
-            if (!imagenesMap[img.exercise]) {
-                imagenesMap[img.exercise] = [];
-            }
-            imagenesMap[img.exercise].push(img.image);
-        });
-        
-        // Formatear ejercicios al formato que espera nuestra app
-        const ejerciciosFormateados = todosLosEjercicios.map(ej => ({
-            id: ej.id.toString(),
-            name: ej.name,
-            description: ej.description?.replace(/<[^>]*>/g, '') || '', // Remover HTML
-            category: ej.category?.name || 'strength',
-            equipment: ej.equipment?.map(e => e.name).join(', ') || 'body weight',
-            primaryMuscles: ej.muscles?.map(m => m.name) || [],
-            secondaryMuscles: ej.muscles_secondary?.map(m => m.name) || [],
-            images: imagenesMap[ej.id] || [],
-            gifUrl: imagenesMap[ej.id]?.[0] || null,
-            // Campos adicionales para compatibilidad
-            bodyPart: ej.category?.name || 'general',
-            target: ej.muscles?.[0]?.name || 'general'
-        }));
-        
-        console.log('Ejemplo de ejercicio:', ejerciciosFormateados[0]);
-        ejerciciosCache = ejerciciosFormateados;
+        // Los datos ya vienen en el formato correcto
+        ejerciciosCache = ejercicios;
         guardarCacheEjercicios(ejerciciosFormateados);
         aplicarFiltros();
     } catch (error) {
@@ -266,8 +232,12 @@ function crearCardEjercicio(ejercicio, index) {
                 <div class="info-item">
                     <i class="bi bi-bullseye"></i>
                     <span><strong>Músculos principales:</strong> ${ejercicio.primaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
-                </div>
-                ` : ''}
+                </div> desde GitHub
+    let gifUrl = null;
+    if (ejercicio.images && ejercicio.images.length > 0) {
+        // Las imágenes vienen como rutas relativas, ej: "Air_Bike/0.jpg"
+        gifUrl = IMAGES_BASE_URL + ejercicio.images[0];
+    }
                 <div class="info-item">
                     <i class="bi bi-tools"></i>
                     <span><strong>Equipamiento:</strong> ${traducirEquipamiento(ejercicio.equipment || 'body weight')}</span>
