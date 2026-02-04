@@ -1,9 +1,11 @@
-// 🏋️ Usando JSON estático del repositorio de GitHub (Sin API, sin límites)
-// Repositorio: https://github.com/yuhonas/free-exercise-db
-const EXERCISES_JSON_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
-const IMAGES_BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+// 🏋️ Usando ExerciseDB de RapidAPI (Con GIFs animados reales)
+// API: https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
+// Regístrate gratis en RapidAPI para obtener tu API key
+const RAPIDAPI_KEY = 'TU_API_KEY_AQUI'; // Cámbiala por tu clave de RapidAPI
+const EXERCISES_API_URL = 'https://exercisedb.p.rapidapi.com/exercises';
+const RAPIDAPI_HOST = 'exercisedb.p.rapidapi.com';
 
-console.log('✅ Usando datos estáticos de GitHub - Sin límites, sin CORS');
+console.log('✅ Usando ExerciseDB API - GIFs animados reales');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -19,9 +21,24 @@ const contadorResultados = document.getElementById('contador-resultados');
 // Cache de ejercicios para evitar múltiples llamadas
 let ejerciciosCache = [];
 
-// No requiere autenticación
+// Verificar que la API key esté configurada
 function verificarApiKey() {
-    // GitHub raw es público, no necesita verificación
+    if (!RAPIDAPI_KEY || RAPIDAPI_KEY === 'TU_API_KEY_AQUI') {
+        mensajeApi.style.display = 'block';
+        mensajeApi.innerHTML = `
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>API Key no configurada</strong>
+            <p>Para usar esta aplicación necesitas:</p>
+            <ol style="text-align: left; margin: 10px auto; max-width: 500px;">
+                <li>Ir a <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank" style="color: #fff; text-decoration: underline;">RapidAPI ExerciseDB</a></li>
+                <li>Crear una cuenta gratuita</li>
+                <li>Suscribirte al plan gratuito (100 requests/mes)</li>
+                <li>Copiar tu API Key</li>
+                <li>Pegar tu API Key en el archivo <code>musculacion.js</code> línea 5</li>
+            </ol>
+        `;
+        return false;
+    }
     mensajeApi.style.display = 'none';
     return true;
 }
@@ -39,7 +56,7 @@ function obtenerCacheEjercicios() {
         // Verificar que los ejercicios tengan gifUrl
         if (data.ejercicios && data.ejercicios.length > 0) {
             const primerEjercicio = data.ejercicios[0];
-            if (!primerEjercicio.gifUrl && !primerEjercicio.gif_url) {
+            if (!primerEjercicio.gifUrl) {
                 console.warn('Caché corrupto detectado (sin GIFs). Limpiando...');
                 localStorage.removeItem('ejercicios-cache');
                 return null;
@@ -85,19 +102,33 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        // Cargar JSON completo desde GitHub
-        console.log('Cargando ejercicios desde GitHub...');
+        // Cargar ejercicios desde ExerciseDB API
+        console.log('Cargando ejercicios desde ExerciseDB API...');
         
-        const response = await fetch(EXERCISES_JSON_URL);
+        const response = await fetch(EXERCISES_API_URL, {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': RAPIDAPI_KEY,
+                'X-RapidAPI-Host': RAPIDAPI_HOST
+            }
+        });
+        
         if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('API Key inválida. Verifica tu clave de RapidAPI.');
+            }
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         
         const ejercicios = await response.json();
         console.log('Ejercicios cargados:', ejercicios.length);
         console.log('Ejemplo de ejercicio:', ejercicios[0]);
         
-        // Los datos ya vienen en el formato correcto
+        // Verificar que tengan GIFs
+        if (ejercicios.length > 0 && ejercicios[0].gifUrl) {
+            console.log('✅ GIFs animados confirmados:', ejercicios[0].gifUrl);
+        }
+        
         ejerciciosCache = ejercicios;
         guardarCacheEjercicios(ejercicios);
         aplicarFiltros();
@@ -121,8 +152,8 @@ function aplicarFiltros() {
     // Filtrar por músculo objetivo
     if (musculo) {
         ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
-            ej.primaryMuscles?.some(m => m.toLowerCase().includes(musculo)) ||
-            ej.target?.toLowerCase().includes(musculo)
+            ej.target?.toLowerCase().includes(musculo) ||
+            ej.secondaryMuscles?.some(m => m.toLowerCase().includes(musculo))
         );
     }
 
@@ -198,18 +229,14 @@ function crearCardEjercicio(ejercicio, index) {
 
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
     
-    // Construir la URL de la imagen desde GitHub
-    let gifUrl = null;
-    if (ejercicio.images && ejercicio.images.length > 0) {
-        // Las imágenes vienen como rutas relativas, ej: "Air_Bike/0.jpg"
-        gifUrl = IMAGES_BASE_URL + ejercicio.images[0];
-    }
+    // ExerciseDB proporciona la URL completa del GIF
+    const gifUrl = ejercicio.gifUrl;
     
     // Debug: mostrar el primer ejercicio
     if (index === 0) {
         console.log('Primer ejercicio completo:', ejercicio);
         console.log('Nombre:', ejercicio.name);
-        console.log('Imagen URL:', gifUrl);
+        console.log('GIF URL:', gifUrl);
     }
 
     card.innerHTML = `
@@ -231,10 +258,10 @@ function crearCardEjercicio(ejercicio, index) {
         </div>
         <div class="ejercicio-body">
             <div class="ejercicio-info">
-                ${ejercicio.primaryMuscles && ejercicio.primaryMuscles.length > 0 ? `
+                ${ejercicio.target ? `
                 <div class="info-item">
                     <i class="bi bi-bullseye"></i>
-                    <span><strong>Músculos principales:</strong> ${ejercicio.primaryMuscles.map(m => traducirMusculo(m)).join(', ')}</span>
+                    <span><strong>Músculo objetivo:</strong> ${traducirMusculo(ejercicio.target)}</span>
                 </div>
                 ` : ''}
                 <div class="info-item">
@@ -437,11 +464,13 @@ if (btnDiagnostico) {
             const primerEjercicio = ejerciciosCache[0];
             console.log('Primer ejercicio:', primerEjercicio);
             console.log('Tiene gifUrl:', !!primerEjercicio.gifUrl);
-            console.log('Tiene gif_url:', !!primerEjercicio.gif_url);
-            console.log('URL del GIF:', primerEjercicio.gifUrl || primerEjercicio.gif_url || 'NO TIENE');
+            console.log('URL del GIF:', primerEjercicio.gifUrl || 'NO TIENE');
+            console.log('BodyPart:', primerEjercicio.bodyPart);
+            console.log('Target:', primerEjercicio.target);
+            console.log('Equipment:', primerEjercicio.equipment);
             
             // Contar cuántos tienen GIF
-            const conGif = ejerciciosCache.filter(ej => ej.gifUrl || ej.gif_url).length;
+            const conGif = ejerciciosCache.filter(ej => ej.gifUrl).length;
             const sinGif = ejerciciosCache.length - conGif;
             
             console.log(`Ejercicios CON GIF: ${conGif}`);
@@ -449,10 +478,10 @@ if (btnDiagnostico) {
             
             // Probar cargar un GIF de ejemplo
             if (primerEjercicio.gifUrl) {
-                console.log('Intentando cargar GIF de prueba...');
+                console.log('Intentando cargar GIF animado de prueba...');
                 const img = new Image();
-                img.onload = () => console.log('✅ GIF de prueba cargado correctamente');
-                img.onerror = () => console.error('❌ Error al cargar GIF de prueba');
+                img.onload = () => console.log('✅ GIF animado cargado correctamente');
+                img.onerror = () => console.error('❌ Error al cargar GIF');
                 img.src = primerEjercicio.gifUrl;
             }
         } else {
