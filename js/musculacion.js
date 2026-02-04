@@ -1,11 +1,10 @@
-// 🏋️ Usando ExerciseDB de RapidAPI (Con GIFs animados reales)
-// API: https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
-// Regístrate gratis en RapidAPI para obtener tu API key
-const RAPIDAPI_KEY = 'TU_API_KEY_AQUI'; // Cámbiala por tu clave de RapidAPI
-const EXERCISES_API_URL = 'https://exercisedb.p.rapidapi.com/exercises';
-const RAPIDAPI_HOST = 'exercisedb.p.rapidapi.com';
+// 🏋️ Usando Wger API (Gratuita, sin registro, con imágenes animadas)
+// API: https://wger.de/api/v2/
+// 100% gratuita, sin límites, sin necesidad de API key
+const EXERCISES_API_URL = 'https://wger.de/api/v2/exercise/?language=2&limit=999';
+const IMAGES_API_URL = 'https://wger.de/api/v2/exerciseimage/';
 
-console.log('✅ Usando ExerciseDB API - GIFs animados reales');
+console.log('✅ Usando Wger API - Gratuita y sin límites');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -21,24 +20,8 @@ const contadorResultados = document.getElementById('contador-resultados');
 // Cache de ejercicios para evitar múltiples llamadas
 let ejerciciosCache = [];
 
-// Verificar que la API key esté configurada
+// Wger API no requiere autenticación
 function verificarApiKey() {
-    if (!RAPIDAPI_KEY || RAPIDAPI_KEY === 'TU_API_KEY_AQUI') {
-        mensajeApi.style.display = 'block';
-        mensajeApi.innerHTML = `
-            <i class="bi bi-exclamation-triangle"></i>
-            <strong>API Key no configurada</strong>
-            <p>Para usar esta aplicación necesitas:</p>
-            <ol style="text-align: left; margin: 10px auto; max-width: 500px;">
-                <li>Ir a <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank" style="color: #fff; text-decoration: underline;">RapidAPI ExerciseDB</a></li>
-                <li>Crear una cuenta gratuita</li>
-                <li>Suscribirte al plan gratuito (100 requests/mes)</li>
-                <li>Copiar tu API Key</li>
-                <li>Pegar tu API Key en el archivo <code>musculacion.js</code> línea 5</li>
-            </ol>
-        `;
-        return false;
-    }
     mensajeApi.style.display = 'none';
     return true;
 }
@@ -102,35 +85,56 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        // Cargar ejercicios desde ExerciseDB API
-        console.log('Cargando ejercicios desde ExerciseDB API...');
+        // Cargar ejercicios desde Wger API
+        console.log('Cargando ejercicios desde Wger API...');
         
-        const response = await fetch(EXERCISES_API_URL, {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': RAPIDAPI_KEY,
-                'X-RapidAPI-Host': RAPIDAPI_HOST
-            }
-        });
+        // Cargar ejercicios e imágenes en paralelo
+        const [ejerciciosResponse, imagenesResponse] = await Promise.all([
+            fetch(EXERCISES_API_URL),
+            fetch(IMAGES_API_URL + '?limit=999')
+        ]);
         
-        if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                throw new Error('API Key inválida. Verifica tu clave de RapidAPI.');
-            }
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        if (!ejerciciosResponse.ok) {
+            throw new Error(`Error ${ejerciciosResponse.status}: ${ejerciciosResponse.statusText}`);
         }
         
-        const ejercicios = await response.json();
+        const ejerciciosData = await ejerciciosResponse.json();
+        const ejercicios = ejerciciosData.results || [];
+        
+        // Crear un mapa de imágenes por ejercicio
+        const imagenesMap = {};
+        if (imagenesResponse.ok) {
+            const imagenesData = await imagenesResponse.json();
+            imagenesData.results?.forEach(img => {
+                if (!imagenesMap[img.exercise]) {
+                    imagenesMap[img.exercise] = img.image;
+                }
+            });
+            console.log('Imágenes cargadas:', Object.keys(imagenesMap).length);
+        }
+        
         console.log('Ejercicios cargados:', ejercicios.length);
         console.log('Ejemplo de ejercicio:', ejercicios[0]);
         
-        // Verificar que tengan GIFs
-        if (ejercicios.length > 0 && ejercicios[0].gifUrl) {
-            console.log('✅ GIFs animados confirmados:', ejercicios[0].gifUrl);
-        }
+        // Procesar ejercicios con las imágenes
+        const ejerciciosProcesados = ejercicios.map(ej => ({
+            id: ej.id,
+            name: ej.name,
+            description: ej.description,
+            category: ej.category?.name || 'general',
+            equipment: ej.equipment?.map(eq => eq.name).join(', ') || 'body weight',
+            muscles: ej.muscles?.map(m => m.name) || [],
+            secondaryMuscles: ej.muscles_secondary?.map(m => m.name) || [],
+            gifUrl: imagenesMap[ej.id] || null,
+            bodyPart: ej.category?.name || 'general',
+            target: ej.muscles?.[0]?.name || 'general'
+        }));
         
-        ejerciciosCache = ejercicios;
-        guardarCacheEjercicios(ejercicios);
+        const conImagenes = ejerciciosProcesados.filter(e => e.gifUrl).length;
+        console.log(`✅ ${ejerciciosProcesados.length} ejercicios procesados (${conImagenes} con imágenes)`);
+        
+        ejerciciosCache = ejerciciosProcesados;
+        guardarCacheEjercicios(ejerciciosProcesados);
         aplicarFiltros();
     } catch (error) {
         console.error('Error al cargar ejercicios:', error);
