@@ -209,23 +209,34 @@ function crearCardEjercicio(ejercicio, index) {
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
     
     // Asegurar que la URL del GIF sea correcta
-    const gifUrl = ejercicio.gifUrl || ejercicio.gif_url || null;
+    let gifUrl = ejercicio.gifUrl || ejercicio.gif_url || null;
+    
+    // Verificar que la URL sea válida
+    if (gifUrl && !gifUrl.startsWith('http')) {
+        gifUrl = null;
+    }
     
     // Debug: mostrar el primer ejercicio
     if (index === 0) {
         console.log('Primer ejercicio completo:', ejercicio);
         console.log('GIF URL del primero:', gifUrl);
     }
+    
+    // Si no hay GIF, registrar para depuración
+    if (!gifUrl) {
+        console.warn('Ejercicio sin GIF:', ejercicio.name, ejercicio.id);
+    }
 
     card.innerHTML = `
         <div class="ejercicio-gif-container">
-            ${gifUrl && gifUrl !== 'undefined' ? 
+            ${gifUrl && gifUrl !== 'undefined' && gifUrl !== 'null' ? 
                 `<img src="${gifUrl}" 
                      alt="${ejercicio.name}" 
                      class="ejercicio-gif" 
                      loading="lazy"
-                     onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'padding: 20px; text-align: center; color: #666;\\'>⚠️ Error cargando GIF<br><small>Limpia el caché y recarga</small></div>'">` 
-                : '<div style="padding: 20px; text-align: center; color: #666;">📦 Sin GIF<br><small>Limpia el caché con el botón morado</small></div>'
+                     crossorigin="anonymous"
+                     onerror="console.error('Error al cargar GIF:', '${gifUrl}'); this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Crect fill=%27%23f0f0f0%27 width=%27200%27 height=%27200%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 font-size=%2716%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27%23666%27%3E⚠️ Error cargando GIF%3C/text%3E%3C/svg%3E';">` 
+                : '<div style="padding: 20px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px;"><div style="font-size: 48px;">🏋️</div><small>GIF no disponible</small></div>'
             }
         </div>
         <div class="ejercicio-header">
@@ -434,6 +445,58 @@ if (btnLimpiarCache) {
         console.log('Caché limpiado');
         mostrarNotificacion('Caché limpiado. Recargando ejercicios...');
         cargarEjercicios();
+    });
+}
+
+// Botón de diagnóstico
+const btnDiagnostico = document.getElementById('btn-diagnostico');
+if (btnDiagnostico) {
+    btnDiagnostico.addEventListener('click', () => {
+        console.log('=== DIAGNÓSTICO DE EJERCICIOS ===');
+        console.log('Total ejercicios en caché:', ejerciciosCache.length);
+        
+        if (ejerciciosCache.length > 0) {
+            const primerEjercicio = ejerciciosCache[0];
+            console.log('Primer ejercicio:', primerEjercicio);
+            console.log('Tiene gifUrl:', !!primerEjercicio.gifUrl);
+            console.log('Tiene gif_url:', !!primerEjercicio.gif_url);
+            console.log('URL del GIF:', primerEjercicio.gifUrl || primerEjercicio.gif_url || 'NO TIENE');
+            
+            // Contar cuántos tienen GIF
+            const conGif = ejerciciosCache.filter(ej => ej.gifUrl || ej.gif_url).length;
+            const sinGif = ejerciciosCache.length - conGif;
+            
+            console.log(`Ejercicios CON GIF: ${conGif}`);
+            console.log(`Ejercicios SIN GIF: ${sinGif}`);
+            
+            // Probar cargar un GIF de ejemplo
+            if (primerEjercicio.gifUrl) {
+                console.log('Intentando cargar GIF de prueba...');
+                const img = new Image();
+                img.onload = () => console.log('✅ GIF de prueba cargado correctamente');
+                img.onerror = () => console.error('❌ Error al cargar GIF de prueba');
+                img.src = primerEjercicio.gifUrl;
+            }
+        } else {
+            console.log('No hay ejercicios cargados');
+        }
+        
+        // Verificar caché
+        const cache = localStorage.getItem('ejercicios-cache');
+        if (cache) {
+            try {
+                const data = JSON.parse(cache);
+                console.log('Fecha del caché:', new Date(data.timestamp));
+                console.log('Ejercicios en caché:', data.ejercicios.length);
+            } catch (e) {
+                console.error('Error al leer caché:', e);
+            }
+        } else {
+            console.log('No hay caché guardado');
+        }
+        
+        console.log('=== FIN DIAGNÓSTICO ===');
+        alert('Diagnóstico completado. Revisa la consola del navegador (F12) para ver los resultados.');
     });
 }
 
