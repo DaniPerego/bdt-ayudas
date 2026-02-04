@@ -214,24 +214,25 @@ function crearCardEjercicio(ejercicio, index) {
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
     
     // Construir la URL del GIF
-    // ExerciseDB almacena los GIFs en diferentes ubicaciones dependiendo de la versión
+    // ExerciseDB usa IDs numéricos pero las imágenes en el repo están organizadas por nombre
     let gifUrl = ejercicio.gifUrl || ejercicio.gif_url;
     
-    // Si no viene en la respuesta, usar el repositorio público de GitHub
-    // que tiene todos los ejercicios sin problemas de CORS
-    if (!gifUrl && ejercicio.id) {
-        // Repositorio público con todos los GIFs de ejercicios
-        gifUrl = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ejercicio.id}/0.jpg`;
-    }
-    
-    // Verificar que la URL sea válida
-    if (gifUrl && !gifUrl.startsWith('http')) {
-        gifUrl = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ejercicio.id}/0.jpg`;
+    // Si no viene en la respuesta, construir usando el nombre del ejercicio
+    if (!gifUrl && ejercicio.name) {
+        // Convertir el nombre a formato de carpeta (espacios por guiones bajos, mayúsculas para primera letra)
+        const nombreFormateado = ejercicio.name
+            .split(' ')
+            .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1).toLowerCase())
+            .join('_');
+        
+        // Repositorio público con todos los GIFs de ejercicios organizados por nombre
+        gifUrl = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${nombreFormateado}/0.jpg`;
     }
     
     // Debug: mostrar el primer ejercicio
     if (index === 0) {
         console.log('Primer ejercicio completo:', ejercicio);
+        console.log('Nombre formateado:', ejercicio.name);
         console.log('GIF URL construida:', gifUrl);
     }
 
