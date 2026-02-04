@@ -85,13 +85,7 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        // Cargar todos los ejercicios (solo se hace una vez y se cachea)
-        // Usamos offset y limit para paginar correctamente
-        const response = await fetch(`${API_URL}/exercises?offset=0&limit=1324`, {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': API_KEY,
-                'Xejercicios e imágenes de Wger API
+        // Cargar ejercicios e imágenes de Wger API
         console.log('Cargando ejercicios desde Wger API...');
         
         // Obtener ejercicios (con paginación)
