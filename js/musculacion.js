@@ -217,15 +217,16 @@ function crearCardEjercicio(ejercicio, index) {
     // ExerciseDB almacena los GIFs en diferentes ubicaciones dependiendo de la versión
     let gifUrl = ejercicio.gifUrl || ejercicio.gif_url;
     
-    // Si no viene en la respuesta, construir manualmente usando el ID
+    // Si no viene en la respuesta, usar el repositorio público de GitHub
+    // que tiene todos los ejercicios sin problemas de CORS
     if (!gifUrl && ejercicio.id) {
-        // Formato: https://v2.exercisedb.io/image/{id}
-        gifUrl = `https://v2.exercisedb.io/image/${ejercicio.id}`;
+        // Repositorio público con todos los GIFs de ejercicios
+        gifUrl = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ejercicio.id}/0.jpg`;
     }
     
     // Verificar que la URL sea válida
     if (gifUrl && !gifUrl.startsWith('http')) {
-        gifUrl = `https://v2.exercisedb.io/image/${ejercicio.id}`;
+        gifUrl = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${ejercicio.id}/0.jpg`;
     }
     
     // Debug: mostrar el primer ejercicio
