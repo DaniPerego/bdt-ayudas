@@ -2,6 +2,7 @@
 // Obtén tu key gratis en https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb
 const API_KEY = 'd1588f2d0emsh136af77a92e63fep12efacjsn1d6bae24a51b';
 const API_URL = 'https://exercisedb.p.rapidapi.com';
+const API_VERSION = '/v2'; // Usar versión 2 para asegurar que incluya GIFs
 
 console.log('API Key configurada:', API_KEY !== 'TU_RAPIDAPI_KEY_AQUI' ? 'Sí' : 'No');
 
@@ -92,7 +93,8 @@ async function cargarEjercicios() {
 
     try {
         // Cargar todos los ejercicios (solo se hace una vez y se cachea)
-        const response = await fetch(`${API_URL}/exercises?limit=1300`, {
+        // Usamos offset y limit para paginar correctamente
+        const response = await fetch(`${API_URL}/exercises?offset=0&limit=1324`, {
             method: 'GET',
             headers: {
                 'X-RapidAPI-Key': API_KEY,
@@ -109,7 +111,10 @@ async function cargarEjercicios() {
 
         const ejercicios = await response.json();
         console.log('Ejercicios cargados:', ejercicios.length);
-        console.log('Ejemplo de ejercicio:', ejercicios[0]);
+        console.log('Ejemplo de ejercicio completo:', JSON.stringify(ejercicios[0], null, 2));
+        console.log('Propiedades del ejercicio:', Object.keys(ejercicios[0]));
+        console.log('¿Tiene gifUrl?:', 'gifUrl' in ejercicios[0]);
+        console.log('Valor de gifUrl:', ejercicios[0].gifUrl);
         ejerciciosCache = ejercicios;
         guardarCacheEjercicios(ejercicios);
         aplicarFiltros();
