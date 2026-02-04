@@ -213,23 +213,25 @@ function crearCardEjercicio(ejercicio, index) {
 
     const color = colorParteDelCuerpo[ejercicio.bodyPart] || '#9E9E9E';
     
-    // Asegurar que la URL del GIF sea correcta
-    let gifUrl = ejercicio.gifUrl || ejercicio.gif_url || null;
+    // Construir la URL del GIF
+    // ExerciseDB almacena los GIFs en diferentes ubicaciones dependiendo de la versión
+    let gifUrl = ejercicio.gifUrl || ejercicio.gif_url;
+    
+    // Si no viene en la respuesta, construir manualmente usando el ID
+    if (!gifUrl && ejercicio.id) {
+        // Formato: https://v2.exercisedb.io/image/{id}
+        gifUrl = `https://v2.exercisedb.io/image/${ejercicio.id}`;
+    }
     
     // Verificar que la URL sea válida
     if (gifUrl && !gifUrl.startsWith('http')) {
-        gifUrl = null;
+        gifUrl = `https://v2.exercisedb.io/image/${ejercicio.id}`;
     }
     
     // Debug: mostrar el primer ejercicio
     if (index === 0) {
         console.log('Primer ejercicio completo:', ejercicio);
-        console.log('GIF URL del primero:', gifUrl);
-    }
-    
-    // Si no hay GIF, registrar para depuración
-    if (!gifUrl) {
-        console.warn('Ejercicio sin GIF:', ejercicio.name, ejercicio.id);
+        console.log('GIF URL construida:', gifUrl);
     }
 
     card.innerHTML = `
