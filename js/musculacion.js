@@ -1,6 +1,6 @@
-// 🏋️ Usando GIFs públicos de ExerciseDB CDN (Sin API, sin login, sin límites)
-// CDN público con GIFs animados reales de ejercicios
-console.log('✅ Usando ExerciseDB CDN público - GIFs animados reales');
+// 🏋️ Dataset completo de Ejercicios (873 ejercicios de GitHub free-exercise-db)
+// Sin API, sin límites, totalmente offline
+console.log('✅ Usando dataset completo local - 873 ejercicios disponibles');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -56,7 +56,7 @@ function guardarCacheEjercicios(ejercicios) {
     console.log('Ejercicios guardados en caché');
 }
 
-// Función para cargar todos los ejercicios
+// Función para cargar todos los ejercicios desde JSON local
 async function cargarEjercicios() {
     if (!verificarApiKey()) return;
 
@@ -71,77 +71,47 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        console.log('Cargando ejercicios con GIFs públicos...');
+        console.log('📂 Cargando ejercicios desde JSON local...');
         
-        // Lista de ejercicios con GIFs públicos de ExerciseDB (CDN público)
-        const ejerciciosBase = [
-            // Pecho
-            { name: 'Push Ups', gifUrl: 'https://v2.exercisedb.io/image/4mh9C9F7TLWwKY', bodyPart: 'chest', target: 'pectorals', equipment: 'body weight' },
-            { name: 'Bench Press', gifUrl: 'https://v2.exercisedb.io/image/VUtlGbHXn6IgsH', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
-            { name: 'Dumbbell Flyes', gifUrl: 'https://v2.exercisedb.io/image/naCfx5WmBGXOT0', bodyPart: 'chest', target: 'pectorals', equipment: 'dumbbell' },
-            { name: 'Incline Press', gifUrl: 'https://v2.exercisedb.io/image/Zqhz-Pg6KxoEDz', bodyPart: 'chest', target: 'pectorals', equipment: 'barbell' },
-            
-            // Espalda
-            { name: 'Pull Ups', gifUrl: 'https://v2.exercisedb.io/image/Rp7VPJKynsH4uV', bodyPart: 'back', target: 'lats', equipment: 'body weight' },
-            { name: 'Bent Over Row', gifUrl: 'https://v2.exercisedb.io/image/8pRRXC8KaD-RUp', bodyPart: 'back', target: 'lats', equipment: 'barbell' },
-            { name: 'Deadlift', gifUrl: 'https://v2.exercisedb.io/image/L8-knc1vwZu5Kx', bodyPart: 'back', target: 'spine', equipment: 'barbell' },
-            { name: 'Lat Pulldown', gifUrl: 'https://v2.exercisedb.io/image/8j1Bp5B5PGwQhN', bodyPart: 'back', target: 'lats', equipment: 'cable' },
-            
-            // Piernas
-            { name: 'Squats', gifUrl: 'https://v2.exercisedb.io/image/S1TJEy-u6ELb6Z', bodyPart: 'upper legs', target: 'quads', equipment: 'barbell' },
-            { name: 'Lunges', gifUrl: 'https://v2.exercisedb.io/image/e7dA1fLtVLixzg', bodyPart: 'upper legs', target: 'quads', equipment: 'body weight' },
-            { name: 'Leg Press', gifUrl: 'https://v2.exercisedb.io/image/nIxtSXZvA8v2pV', bodyPart: 'upper legs', target: 'quads', equipment: 'leverage machine' },
-            { name: 'Leg Curl', gifUrl: 'https://v2.exercisedb.io/image/rtQ4Y3YIVf3vmy', bodyPart: 'upper legs', target: 'hamstrings', equipment: 'leverage machine' },
-            { name: 'Calf Raises', gifUrl: 'https://v2.exercisedb.io/image/5avV7Zai9nP7gF', bodyPart: 'lower legs', target: 'calves', equipment: 'body weight' },
-            
-            // Hombros
-            { name: 'Shoulder Press', gifUrl: 'https://v2.exercisedb.io/image/QYk0iQJ1Nh9fny', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
-            { name: 'Lateral Raises', gifUrl: 'https://v2.exercisedb.io/image/tXGJLFQ0Zv2Tm5', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
-            { name: 'Front Raises', gifUrl: 'https://v2.exercisedb.io/image/zv0u3kMdVgLQBB', bodyPart: 'shoulders', target: 'delts', equipment: 'dumbbell' },
-            
-            // Brazos
-            { name: 'Bicep Curls', gifUrl: 'https://v2.exercisedb.io/image/2gvTP6rqNUwJy5', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
-            { name: 'Hammer Curls', gifUrl: 'https://v2.exercisedb.io/image/O0TI2qzUbMa3cY', bodyPart: 'upper arms', target: 'biceps', equipment: 'dumbbell' },
-            { name: 'Tricep Dips', gifUrl: 'https://v2.exercisedb.io/image/aN2aXQhbUFD9cp', bodyPart: 'upper arms', target: 'triceps', equipment: 'body weight' },
-            { name: 'Skull Crushers', gifUrl: 'https://v2.exercisedb.io/image/E1Hd0kZQZFCfxI', bodyPart: 'upper arms', target: 'triceps', equipment: 'barbell' },
-            { name: 'Tricep Extensions', gifUrl: 'https://v2.exercisedb.io/image/mWq02y39NbD-xN', bodyPart: 'upper arms', target: 'triceps', equipment: 'dumbbell' },
-            
-            // Core/Abdomen
-            { name: 'Crunches', gifUrl: 'https://v2.exercisedb.io/image/bj4AwLpXNH5agq', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Plank', gifUrl: 'https://v2.exercisedb.io/image/OW6v7o1XpD9kBx', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Russian Twists', gifUrl: 'https://v2.exercisedb.io/image/qyxfhZPbZFNDe5', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Leg Raises', gifUrl: 'https://v2.exercisedb.io/image/XGlpXWdFnBk7F0', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            { name: 'Mountain Climbers', gifUrl: 'https://v2.exercisedb.io/image/3zXKWnwb3CnGjT', bodyPart: 'waist', target: 'abs', equipment: 'body weight' },
-            
-            // Cardio
-            { name: 'Burpees', gifUrl: 'https://v2.exercisedb.io/image/SuILD-U8GQF1s1', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
-            { name: 'Jumping Jacks', gifUrl: 'https://v2.exercisedb.io/image/W8i5LVMRaJkpGE', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
-            { name: 'Jump Rope', gifUrl: 'https://v2.exercisedb.io/image/d4-b39E4qy2QWw', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'rope' },
-            { name: 'High Knees', gifUrl: 'https://v2.exercisedb.io/image/YxNRZzPbvz1MXB', bodyPart: 'cardio', target: 'cardiovascular system', equipment: 'body weight' },
-        ];
+        // Cargar ejercicios desde el archivo JSON local
+        const response = await fetch('db/exercises.json');
         
-        // Procesar ejercicios
-        const ejerciciosProcesados = ejerciciosBase.map((ej, index) => ({
-            id: `ex-${index + 1}`,
+        if (!response.ok) {
+            throw new Error('No se pudo cargar el archivo de ejercicios');
+        }
+        
+        const data = await response.json();
+        const ejerciciosBase = data.exercises || [];
+        
+        console.log(`📥 ${ejerciciosBase.length} ejercicios cargados del dataset`);
+        
+        // Procesar ejercicios para formato compatible con la UI
+        const ejerciciosProcesados = ejerciciosBase.map((ej) => ({
+            id: ej.id,
             name: ej.name,
             description: `Ejercicio de ${traducirParteDelCuerpo(ej.bodyPart)}`,
-            category: ej.bodyPart,
-            equipment: ej.equipment,
-            muscles: [ej.target],
-            secondaryMuscles: [],
-            gifUrl: ej.gifUrl,
+            category: ej.category,
             bodyPart: ej.bodyPart,
-            target: ej.target
+            equipment: ej.equipment,
+            level: ej.level,
+            target: ej.primaryMuscles && ej.primaryMuscles[0] ? ej.primaryMuscles[0] : 'general',
+            muscles: ej.primaryMuscles || [],
+            secondaryMuscles: ej.secondaryMuscles || [],
+            instructions: ej.instructions || [],
+            // Usar la primera imagen del array como GIF/imagen principal
+            gifUrl: ej.images && ej.images[0] ? ej.images[0] : null,
+            images: ej.images || []
         }));
         
-        console.log(`✅ ${ejerciciosProcesados.length} ejercicios cargados con GIFs`);
+        console.log(`✅ ${ejerciciosProcesados.length} ejercicios procesados y listos`);
+        console.log(`📊 Categorías: ${[...new Set(ejerciciosProcesados.map(e => e.category))].join(', ')}`);
         
         ejerciciosCache = ejerciciosProcesados;
         guardarCacheEjercicios(ejerciciosProcesados);
         aplicarFiltros();
     } catch (error) {
-        console.error('Error al cargar ejercicios:', error);
-        mostrarError(error.message);
+        console.error('❌ Error al cargar ejercicios:', error);
+        mostrarError(error.message || 'No se pudieron cargar los ejercicios');
     } finally {
         mostrarLoader(false);
     }
@@ -158,10 +128,12 @@ function aplicarFiltros() {
 
     // Filtrar por músculo objetivo
     if (musculo) {
-        ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => 
-            ej.target?.toLowerCase().includes(musculo) ||
-            ej.secondaryMuscles?.some(m => m.toLowerCase().includes(musculo))
-        );
+        ejerciciosFiltrados = ejerciciosFiltrados.filter(ej => {
+            const targetMatch = ej.target?.toLowerCase().includes(musculo);
+            const musclesMatch = ej.muscles?.some(m => m.toLowerCase().includes(musculo));
+            const secondaryMatch = ej.secondaryMuscles?.some(m => m.toLowerCase().includes(musculo));
+            return targetMatch || musclesMatch || secondaryMatch;
+        });
     }
 
     // Filtrar por equipamiento
@@ -317,45 +289,61 @@ function traducirParteDelCuerpo(parte) {
 
 function traducirMusculo(musculo) {
     const traducciones = {
+        'abdominals': 'Abdominales',
         'abductors': 'Abductores',
         'abs': 'Abdominales',
         'adductors': 'Aductores',
         'biceps': 'Bíceps',
         'calves': 'Gemelos',
         'cardiovascular system': 'Sistema Cardiovascular',
+        'chest': 'Pecho',
         'delts': 'Deltoides',
         'forearms': 'Antebrazos',
         'glutes': 'Glúteos',
         'hamstrings': 'Isquiotibiales',
         'lats': 'Dorsales',
         'levator scapulae': 'Elevador de la Escápula',
+        'lower back': 'Espalda Baja',
+        'middle back': 'Espalda Media',
+        'neck': 'Cuello',
         'pectorals': 'Pectorales',
+        'quadriceps': 'Cuádriceps',
         'quads': 'Cuádriceps',
         'serratus anterior': 'Serrato Anterior',
+        'shoulders': 'Hombros',
         'spine': 'Columna',
         'traps': 'Trapecios',
         'triceps': 'Tríceps',
         'upper back': 'Espalda Alta'
     };
-    return traducciones[musculo] || musculo;
+    return traducciones[musculo?.toLowerCase()] || musculo;
 }
 
 function traducirEquipamiento(equipamiento) {
     const traducciones = {
         'assisted': 'Asistido',
         'band': 'Banda Elástica',
+        'bands': 'Bandas Elásticas',
         'barbell': 'Barra',
+        'body only': 'Peso Corporal',
         'body weight': 'Peso Corporal',
         'bosu ball': 'Bosu Ball',
         'cable': 'Polea/Cable',
         'dumbbell': 'Mancuernas',
+        'e-z curl bar': 'Barra Z',
         'elliptical machine': 'Elíptica',
+        'exercise ball': 'Fitball',
         'ez barbell': 'Barra Z',
+        'foam roll': 'Rodillo de Espuma',
         'hammer': 'Martillo',
+        'kettlebells': 'Kettlebells',
         'kettlebell': 'Kettlebell',
         'leverage machine': 'Máquina de Palanca',
+        'machine': 'Máquina',
         'medicine ball': 'Balón Medicinal',
+        'none': 'Sin Equipamiento',
         'olympic barbell': 'Barra Olímpica',
+        'other': 'Otro',
         'resistance band': 'Banda de Resistencia',
         'roller': 'Rodillo',
         'rope': 'Cuerda',
@@ -371,7 +359,7 @@ function traducirEquipamiento(equipamiento) {
         'weighted': 'Con Peso',
         'wheel roller': 'Rueda Abdominal'
     };
-    return traducciones[equipamiento] || equipamiento;
+    return traducciones[equipamiento?.toLowerCase()] || equipamiento;
 }
 
 // Mostrar/ocultar loader
