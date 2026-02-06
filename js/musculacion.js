@@ -1,6 +1,6 @@
-// 🏋️ Dataset completo de Ejercicios (873 ejercicios de GitHub free-exercise-db)
-// Sin API, sin límites, totalmente offline
-console.log('✅ Usando dataset completo local - 873 ejercicios disponibles');
+// 🏋️ Dataset con GIFs desde GitHub (Exercise GIFs)
+// Sin API key, cargado remoto
+console.log('✅ Usando dataset con GIFs desde GitHub');
 
 // Elementos del DOM
 const ejerciciosContainer = document.getElementById('ejercicios-container');
@@ -17,7 +17,11 @@ const contadorResultados = document.getElementById('contador-resultados');
 let ejerciciosCache = [];
 
 // Versión del dataset para invalidar caché antiguo
-const DATASET_VERSION = 'v2.0-873ejercicios';
+const DATASET_VERSION = 'v3.0-gifs-csv';
+const EJERCICIOS_CACHE_KEY = 'ejercicios-musculacion-cache';
+
+const EXERCISE_GIFS_CSV_URL = 'https://raw.githubusercontent.com/omercotkd/exercises-gifs/main/exercises.csv';
+const EXERCISE_GIFS_BASE = 'https://raw.githubusercontent.com/omercotkd/exercises-gifs/main/assets/';
 
 // No requiere autenticación
 function verificarApiKey() {
@@ -25,54 +29,12 @@ function verificarApiKey() {
     return true;
 }
 
-// Sistema de caché para reducir llamadas a la API
-function obtenerCacheEjercicios() {
-    const cache = localStorage.getItem('ejercicios-cache');
-    if (!cache) return null;
-    
-    try {
-        const data = JSON.parse(cache);
-        const ahora = new Date().getTime();
-        const unDia = 24 * 60 * 60 * 1000; // 1 día en milisegundos
-        
-        // Verificar versión del dataset - si es diferente, invalidar caché
-        if (!data.version || data.version !== DATASET_VERSION) {
-            console.log('⚠️ Caché obsoleto (versión diferente). Invalidando...');
-            localStorage.removeItem('ejercicios-cache');
-            return null;
-        }
-        
-        // Si el cache tiene menos de 1 día, usarlo
-        if (ahora - data.timestamp < unDia) {
-            console.log('✅ Usando ejercicios del caché (' + data.ejercicios.length + ' ejercicios)');
-            return data.ejercicios;
-        }
-        
-        console.log('⏰ Caché expirado');
-        return null;
-    } catch (error) {
-        console.error('❌ Error al leer caché:', error);
-        localStorage.removeItem('ejercicios-cache');
-        return null;
-    }
-}
-
-function guardarCacheEjercicios(ejercicios) {
-    const data = {
-        ejercicios: ejercicios,
-        timestamp: new Date().getTime(),
-        version: DATASET_VERSION
-    };
-    localStorage.setItem('ejercicios-cache', JSON.stringify(data));
-    console.log('💾 Ejercicios guardados en caché (versión: ' + DATASET_VERSION + ')');
-}
-
-// Función para cargar todos los ejercicios desde JSON local
+// Función para cargar todos los ejercicios desde CSV remoto
 async function cargarEjercicios() {
     if (!verificarApiKey()) return;
 
     // Intentar usar caché primero
-    const ejerciciosCacheados = obtenerCacheEjercicios();
+    const ejerciciosCacheados = CacheManager.get(EJERCICIOS_CACHE_KEY, DATASET_VERSION);
     if (ejerciciosCacheados) {
         ejerciciosCache = ejerciciosCacheados;
         aplicarFiltros();
@@ -82,44 +44,49 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        console.log('📂 Cargando ejercicios desde JSON local (db/exercises.json)...');
+        console.log('📂 Cargando ejercicios desde CSV remoto con GIFs...');
         
-        // Cargar ejercicios desde el archivo JSON local
-        const response = await fetch('db/exercises.json');
+        // Cargar ejercicios desde el archivo CSV remoto
+        const response = await fetch(EXERCISE_GIFS_CSV_URL);
         
         if (!response.ok) {
             throw new Error(`No se pudo cargar el archivo de ejercicios (HTTP ${response.status})`);
         }
         
-        const data = await response.json();
-        const ejerciciosBase = data.exercises || [];
+        const csvText = await response.text();
+        const ejerciciosBase = parseCsv(csvText);
         
         console.log(`📥 ${ejerciciosBase.length} ejercicios cargados del dataset`);
-        console.log(`📦 Dataset info: ${data.source}, actualizado: ${data.updated}`);
+        console.log('📦 Dataset info: Exercise GIFs CSV');
         
         // Procesar ejercicios para formato compatible con la UI
-        const ejerciciosProcesados = ejerciciosBase.map((ej) => ({
-            id: ej.id,
-            name: ej.name,
-            description: `Ejercicio de ${traducirParteDelCuerpo(ej.bodyPart)}`,
-            category: ej.category,
-            bodyPart: ej.bodyPart,
-            equipment: ej.equipment,
-            level: ej.level,
-            target: ej.primaryMuscles && ej.primaryMuscles[0] ? ej.primaryMuscles[0] : 'general',
-            muscles: ej.primaryMuscles || [],
-            secondaryMuscles: ej.secondaryMuscles || [],
-            instructions: ej.instructions || [],
-            // Usar la primera imagen del array como GIF/imagen principal
-            gifUrl: ej.images && ej.images[0] ? ej.images[0] : null,
-            images: ej.images || []
-        }));
+        const ejerciciosProcesados = ejerciciosBase.map((ej) => {
+            const instructions = collectIndexedFields(ej, 'instructions/');
+            const secondaryMuscles = collectIndexedFields(ej, 'secondaryMuscles/');
+            const target = ej.target || 'general';
+
+            return {
+                id: ej.id,
+                name: ej.name,
+                description: `Ejercicio de ${traducirParteDelCuerpo(ej.bodyPart)}`,
+                category: ej.bodyPart || '',
+                bodyPart: ej.bodyPart,
+                equipment: ej.equipment,
+                level: ej.level || null,
+                target,
+                muscles: target ? [target] : [],
+                secondaryMuscles,
+                instructions,
+                gifUrl: ej.id ? `${EXERCISE_GIFS_BASE}${ej.id}.gif` : null,
+                images: []
+            };
+        });
         
         console.log(`✅ ${ejerciciosProcesados.length} ejercicios procesados y listos`);
         console.log(`📊 Categorías: ${[...new Set(ejerciciosProcesados.map(e => e.category))].join(', ')}`);
         
         ejerciciosCache = ejerciciosProcesados;
-        guardarCacheEjercicios(ejerciciosProcesados);
+        CacheManager.set(EJERCICIOS_CACHE_KEY, ejerciciosProcesados, DATASET_VERSION);
         aplicarFiltros();
     } catch (error) {
         console.error('❌ Error al cargar ejercicios:', error);
@@ -237,8 +204,8 @@ function crearCardEjercicio(ejercicio, index) {
                      alt="${ejercicio.name}" 
                      class="ejercicio-gif" 
                      loading="lazy"
-                     onerror="console.error('Error al cargar imagen:', '${gifUrl}'); this.onerror=null; this.parentElement.innerHTML='<div style=\\'padding: 40px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px;\\'><div style=\\'font-size: 48px;\\'>🏋️</div><small>Imagen no disponible</small></div>';">` 
-                : '<div style="padding: 40px; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px; height: 100%;"><div style="font-size: 48px;">🏋️</div><small>Sin imagen</small></div>'
+                     onerror="handleImageError(this, '${ejercicio.name.replace(/'/g, "\\'")}')">` 
+                : '<div class="gif-fallback"><div class="fallback-icon">🏋️</div><div class="fallback-text">GIF no disponible</div><div class="fallback-name">' + ejercicio.name.substring(0, 30) + '</div></div>'
             }
         </div>
         <div class="ejercicio-header">
@@ -453,7 +420,7 @@ filtroDificultad.addEventListener('change', aplicarFiltros);
 const btnLimpiarCache = document.getElementById('btn-limpiar-cache');
 if (btnLimpiarCache) {
     btnLimpiarCache.addEventListener('click', () => {
-        localStorage.removeItem('ejercicios-cache');
+        CacheManager.clear(EJERCICIOS_CACHE_KEY);
         console.log('Caché limpiado');
         mostrarNotificacion('Caché limpiado. Recargando ejercicios...');
         cargarEjercicios();
@@ -496,12 +463,13 @@ if (btnDiagnostico) {
         }
         
         // Verificar caché
-        const cache = localStorage.getItem('ejercicios-cache');
+        const cache = localStorage.getItem(EJERCICIOS_CACHE_KEY);
         if (cache) {
             try {
                 const data = JSON.parse(cache);
                 console.log('Fecha del caché:', new Date(data.timestamp));
-                console.log('Ejercicios en caché:', data.ejercicios.length);
+                console.log('Versión del caché:', data.version);
+                console.log('Ejercicios en caché:', data.data.length);
             } catch (e) {
                 console.error('Error al leer caché:', e);
             }

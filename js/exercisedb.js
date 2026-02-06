@@ -1,20 +1,56 @@
-// ExerciseDB Integration - Dataset completo desde GitHub
-const EXERCISEDB_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
-const EXERCISEDB_IMG_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+// Exercise GIFs Integration - Dataset con GIFs desde GitHub
+const EXERCISEDB_CSV_URL = 'https://raw.githubusercontent.com/omercotkd/exercises-gifs/main/exercises.csv';
+const EXERCISEDB_GIF_BASE = 'https://raw.githubusercontent.com/omercotkd/exercises-gifs/main/assets/';
+const EXERCISEDB_CACHE_KEY = 'exercisedb-cache';
+const EXERCISEDB_VERSION = 'v1.0-gifs';
 
 let allExercises = [];
 let filteredExercises = [];
 
-// Cargar ejercicios desde ExerciseDB
+function normalizeExercises(records) {
+    return records.map(record => {
+        const instructions = collectIndexedFields(record, 'instructions/');
+        const secondaryMuscles = collectIndexedFields(record, 'secondaryMuscles/');
+        const target = record.target || '';
+
+        return {
+            id: record.id,
+            name: record.name,
+            bodyPart: record.bodyPart,
+            equipment: record.equipment,
+            level: record.level || '',
+            primaryMuscles: target ? [target] : [],
+            secondaryMuscles,
+            instructions,
+            gifUrl: record.id ? `${EXERCISEDB_GIF_BASE}${record.id}.gif` : null
+        };
+    });
+}
+
+// Cargar ejercicios desde Exercise GIFs
 async function loadExercises() {
+    // Intentar usar caché primero
+    const cachedExercises = CacheManager.get(EXERCISEDB_CACHE_KEY, EXERCISEDB_VERSION);
+    if (cachedExercises) {
+        allExercises = cachedExercises;
+        filteredExercises = allExercises;
+        displayExercises(filteredExercises);
+        return;
+    }
+
     try {
-        const response = await fetch(EXERCISEDB_URL);
+        const response = await fetch(EXERCISEDB_CSV_URL);
         if (!response.ok) throw new Error('Error al cargar ejercicios');
         
-        allExercises = await response.json();
+        const csvText = await response.text();
+        const records = parseCsv(csvText);
+        allExercises = normalizeExercises(records);
         filteredExercises = allExercises;
         
-        console.log(`✅ ${allExercises.length} ejercicios cargados desde ExerciseDB`);
+        // Guardar en caché
+        CacheManager.set(EXERCISEDB_CACHE_KEY, allExercises, EXERCISEDB_VERSION);
+        
+        console.log(`✅ ${allExercises.length} ejercicios cargados desde Exercise GIFs`);
         displayExercises(filteredExercises);
     } catch (error) {
         console.error('Error cargando ejercicios:', error);
@@ -33,8 +69,8 @@ function displayExercises(exercises) {
     }
     
     container.innerHTML = exercises.map(exercise => {
-        const imageUrl = exercise.images && exercise.images[0] 
-            ? EXERCISEDB_IMG_BASE + exercise.images[0] 
+        const imageUrl = exercise.gifUrl 
+            ? exercise.gifUrl
             : 'img/placeholder-exercise.jpg';
         
         const primaryMuscles = exercise.primaryMuscles ? exercise.primaryMuscles.join(', ') : 'N/A';
@@ -44,7 +80,10 @@ function displayExercises(exercises) {
         return `
             <div class="exercise-card">
                 <div class="exercise-image">
-                    <img src="${imageUrl}" alt="${exercise.name}" loading="lazy">
+                    <img src="${imageUrl}" 
+                         alt="${exercise.name}" 
+                         loading="lazy"
+                         onerror="handleImageError(this, '${exercise.name}')">
                     ${exercise.level ? `<span class="badge badge-${exercise.level}">${exercise.level}</span>` : ''}
                 </div>
                 <div class="exercise-info">
