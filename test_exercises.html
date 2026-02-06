@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Ejercicios</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .exercise { border: 1px solid #ddd; margin: 10px; padding: 10px; }
+        img { max-width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Test de Carga de Ejercicios</h1>
+    <div id="status">Cargando...</div>
+    <div id="exercises"></div>
+    
+    <script>
+        async function testLoad() {
+            const statusDiv = document.getElementById('status');
+            const exercisesDiv = document.getElementById('exercises');
+            
+            try {
+                const response = await fetch('db/exercises.json');
+                const data = await response.json();
+                
+                statusDiv.innerHTML = `✅ ${data.total} ejercicios cargados<br>`;
+                statusDiv.innerHTML += `Mostrando primeros 10 ejercicios:`;
+                
+                // Mostrar primeros 10
+                data.exercises.slice(0, 10).forEach(ex => {
+                    const div = document.createElement('div');
+                    div.className = 'exercise';
+                    div.innerHTML = `
+                        <h3>${ex.name}</h3>
+                        <p>Categoría: ${ex.category}</p>
+                        <p>Equipamiento: ${ex.equipment}</p>
+                        <p>Músculos: ${ex.primaryMuscles.join(', ')}</p>
+                        ${ex.images && ex.images[0] ? `<img src="${ex.images[0]}" alt="${ex.name}">` : '<p>Sin imagen</p>'}
+                    `;
+                    exercisesDiv.appendChild(div);
+                });
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Error: ${error.message}`;
+                console.error(error);
+            }
+        }
+        
+        testLoad();
+    </script>
+</body>
+</html>

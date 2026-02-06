@@ -16,6 +16,9 @@ const contadorResultados = document.getElementById('contador-resultados');
 // Cache de ejercicios para evitar múltiples llamadas
 let ejerciciosCache = [];
 
+// Versión del dataset para invalidar caché antiguo
+const DATASET_VERSION = 'v2.0-873ejercicios';
+
 // No requiere autenticación
 function verificarApiKey() {
     mensajeApi.style.display = 'none';
@@ -32,16 +35,23 @@ function obtenerCacheEjercicios() {
         const ahora = new Date().getTime();
         const unDia = 24 * 60 * 60 * 1000; // 1 día en milisegundos
         
+        // Verificar versión del dataset - si es diferente, invalidar caché
+        if (!data.version || data.version !== DATASET_VERSION) {
+            console.log('⚠️ Caché obsoleto (versión diferente). Invalidando...');
+            localStorage.removeItem('ejercicios-cache');
+            return null;
+        }
+        
         // Si el cache tiene menos de 1 día, usarlo
         if (ahora - data.timestamp < unDia) {
-            console.log('Usando ejercicios del caché (' + data.ejercicios.length + ' ejercicios)');
+            console.log('✅ Usando ejercicios del caché (' + data.ejercicios.length + ' ejercicios)');
             return data.ejercicios;
         }
         
-        console.log('Caché expirado');
+        console.log('⏰ Caché expirado');
         return null;
     } catch (error) {
-        console.error('Error al leer caché:', error);
+        console.error('❌ Error al leer caché:', error);
         localStorage.removeItem('ejercicios-cache');
         return null;
     }
@@ -50,10 +60,11 @@ function obtenerCacheEjercicios() {
 function guardarCacheEjercicios(ejercicios) {
     const data = {
         ejercicios: ejercicios,
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        version: DATASET_VERSION
     };
     localStorage.setItem('ejercicios-cache', JSON.stringify(data));
-    console.log('Ejercicios guardados en caché');
+    console.log('💾 Ejercicios guardados en caché (versión: ' + DATASET_VERSION + ')');
 }
 
 // Función para cargar todos los ejercicios desde JSON local
@@ -71,19 +82,20 @@ async function cargarEjercicios() {
     mostrarLoader(true);
 
     try {
-        console.log('📂 Cargando ejercicios desde JSON local...');
+        console.log('📂 Cargando ejercicios desde JSON local (db/exercises.json)...');
         
         // Cargar ejercicios desde el archivo JSON local
         const response = await fetch('db/exercises.json');
         
         if (!response.ok) {
-            throw new Error('No se pudo cargar el archivo de ejercicios');
+            throw new Error(`No se pudo cargar el archivo de ejercicios (HTTP ${response.status})`);
         }
         
         const data = await response.json();
         const ejerciciosBase = data.exercises || [];
         
         console.log(`📥 ${ejerciciosBase.length} ejercicios cargados del dataset`);
+        console.log(`📦 Dataset info: ${data.source}, actualizado: ${data.updated}`);
         
         // Procesar ejercicios para formato compatible con la UI
         const ejerciciosProcesados = ejerciciosBase.map((ej) => ({
