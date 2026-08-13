@@ -7,6 +7,7 @@ let tabataRound = 0;
 let tabataPhase = 'prepare';
 let isTabataRunning = false;
 let isSoundEnabled = true;
+let videos = [];
 
 // Funcionalidad del menú desplegable
 document.addEventListener('DOMContentLoaded', function() {
@@ -60,6 +61,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }, duration * 1000);
     }
 
+    // --- Funciones de utilidad compartidas ---
+    function formatMMSS(totalSeconds) {
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function playStartSound() {
+        if (!isSoundEnabled) return;
+        createBeep(880, 0.3, 0.2);
+    }
+
+    function playEndSound() {
+        if (!isSoundEnabled) return;
+        createBeep(440, 0.3, 0.3);
+        setTimeout(() => createBeep(440, 0.3, 0.3), 400);
+    }
+
     // --- Fetch ejercicios ---
     fetch('videos-list.json')
         .then(res => {
@@ -85,21 +104,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     const seccionesActualizadas = document.querySelectorAll('.seccion');
     seccionesActualizadas.forEach(seccion => {
-        seccion.addEventListener('dragover', e => {
-            e.preventDefault();
-            seccion.classList.add('over');
-        });
-        seccion.addEventListener('dragleave', e => {
-            seccion.classList.remove('over');
-        });
-            let dropActivo = false;
+        if (!seccion.dataset.dropListener) {
+            seccion.addEventListener('dragover', e => {
+                e.preventDefault();
+                seccion.classList.add('over');
+            });
+            seccion.addEventListener('dragleave', e => {
+                seccion.classList.remove('over');
+            });
             seccion.addEventListener('drop', e => {
-                if (dropActivo) return;
-                dropActivo = true;
-                setTimeout(() => { dropActivo = false; }, 100);
                 e.preventDefault();
                 seccion.classList.remove('over');
-                // Lógica para agregar el ejercicio arrastrado
                 const nombre = e.dataTransfer.getData('nombre');
                 const videoUrl = e.dataTransfer.getData('video');
                 if (!nombre || !videoUrl) return;
@@ -125,7 +140,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const iframe = document.createElement('iframe');
                 iframe.width = '200';
-                    // ...existing code...
+                iframe.height = '120';
+                iframe.src = videoUrl;
+                iframe.frameBorder = '0';
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                iframe.setAttribute('allowfullscreen', '');
+
+                const btnEliminar = document.createElement('button');
+                btnEliminar.textContent = '✖';
+                btnEliminar.title = 'Eliminar ejercicio';
+                btnEliminar.style.marginLeft = '8px';
+                btnEliminar.style.background = 'transparent';
+                btnEliminar.style.color = 'var(--color-rojo)';
+                btnEliminar.style.border = 'none';
+                btnEliminar.style.fontSize = '1.2rem';
+                btnEliminar.style.cursor = 'pointer';
+                btnEliminar.onclick = () => { wrapper.remove(); };
+
+                wrapper.appendChild(nombreSpan);
+                wrapper.appendChild(input);
+                wrapper.appendChild(iframe);
+                wrapper.appendChild(btnEliminar);
+                seccion.appendChild(wrapper);
+            });
+            seccion.dataset.dropListener = 'true';
+        }
+    });
 
     function stopStopwatch() {
         if (!isRunning) return;
@@ -376,77 +416,49 @@ document.addEventListener('DOMContentLoaded', function() {
     const emomMinutesInput = document.getElementById('emom-minutes');
     const emomSecondsInput = document.getElementById('emom-seconds');
     const emomTimeDisplay = document.getElementById('emom-time');
-        // --- Listeners de drop en secciones SOLO UNA VEZ ---
-        // Listeners de drop en secciones SOLO UNA VEZ y nunca se duplican
-        const secciones = document.querySelectorAll('.seccion');
-        secciones.forEach(seccion => {
-            if (!seccion.dataset.dropListener) {
-                seccion.addEventListener('dragover', e => {
-                    e.preventDefault();
-                    seccion.classList.add('over');
-                });
-                seccion.addEventListener('dragleave', e => {
-                    seccion.classList.remove('over');
-                });
-                seccion.addEventListener('drop', e => {
-                    e.preventDefault();
-                    seccion.classList.remove('over');
-                    // Evitar duplicados: solo agregar si no existe ya el ejercicio en la sección
-                    const nombre = e.dataTransfer.getData('nombre');
-                    const videoUrl = e.dataTransfer.getData('video');
-                    if (!nombre || !videoUrl) return;
-                    const yaExiste = Array.from(seccion.querySelectorAll('.ejercicio-seleccionado .ejercicio')).some(span => span.textContent === nombre);
-                    if (yaExiste) return;
-                    // Solo una declaración de 'wrapper'
-                    let wrapper = document.createElement('div');
-                    wrapper.className = 'ejercicio-seleccionado';
-                    wrapper.style.display = 'flex';
-                    wrapper.style.alignItems = 'center';
-                    wrapper.style.gap = '10px';
-                    wrapper.draggable = true;
-                    wrapper.id = 'ej-' + Math.random().toString(36).substr(2, 9);
+    const emomRoundDisplay = document.getElementById('emom-round');
+    const emomStartButton = document.getElementById('emom-start');
+    const emomResetButton = document.getElementById('emom-reset');
 
-                    const nombreSpan = document.createElement('span');
-                    nombreSpan.className = 'ejercicio';
-                    nombreSpan.textContent = nombre;
+    function updateEmomDisplay() {
+        if (emomTimeDisplay) emomTimeDisplay.textContent = formatMMSS(emomTimeLeft);
+        if (emomRoundDisplay) emomRoundDisplay.textContent = `Ronda: ${emomCurrentRound}`;
+    }
 
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.min = '1';
-                    input.value = '10';
-                    input.style.width = '60px';
-                    input.style.marginLeft = '8px';
-                    input.title = 'Cantidad de repeticiones';
+    function startEmom() {
+        if (isEmomRunning) return;
+        isEmomRunning = true;
+        if (emomStartButton) emomStartButton.textContent = 'Pausar';
 
-                    const iframe = document.createElement('iframe');
-                    iframe.width = '200';
-                    iframe.height = '120';
-                    iframe.src = videoUrl; // SIEMPRE video.url
-                    iframe.frameBorder = '0';
-                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-                    iframe.setAttribute('allowfullscreen', '');
+        const minutes = parseInt(emomMinutesInput.value) || 10;
+        const seconds = parseInt(emomSecondsInput.value) || 0;
+        emomTimePerRound = minutes * 60 + seconds;
+        emomTotalRounds = minutes; // Approximate rounds
+        emomCurrentRound = 1;
+        emomTimeLeft = emomTimePerRound;
 
-                    const btnEliminar = document.createElement('button');
-                    btnEliminar.textContent = '✖';
-                    btnEliminar.title = 'Eliminar ejercicio';
-                    btnEliminar.style.marginLeft = '8px';
-                    btnEliminar.style.background = 'transparent';
-                    btnEliminar.style.color = 'var(--color-rojo)';
-                    btnEliminar.style.border = 'none';
-                    btnEliminar.style.fontSize = '1.2rem';
-                    btnEliminar.style.cursor = 'pointer';
-                    btnEliminar.onclick = () => { wrapper.remove(); };
+        updateEmomDisplay();
+        playStartSound();
 
-                    wrapper.appendChild(nombreSpan);
-                    wrapper.appendChild(input);
-                    wrapper.appendChild(iframe);
-                    wrapper.appendChild(btnEliminar);
-                    seccion.appendChild(wrapper);
-                });
-                seccion.dataset.dropListener = 'true';
+        emomInterval = setInterval(() => {
+            emomTimeLeft--;
+            updateEmomDisplay();
+
+            if (emomTimeLeft === 0) {
+                playEndSound();
+                emomCurrentRound++;
+                emomTimeLeft = emomTimePerRound;
+                updateEmomDisplay();
             }
-        });
-    
+        }, 1000);
+    }
+
+    function stopEmom() {
+        clearInterval(emomInterval);
+        isEmomRunning = false;
+        if (emomStartButton) emomStartButton.textContent = 'Iniciar';
+    }
+
     function resetEmom() {
         stopEmom();
         emomCurrentRound = 0;
@@ -528,6 +540,416 @@ document.addEventListener('DOMContentLoaded', function() {
         amrapResetButton.addEventListener('click', resetAmrap);
     }
 
+    // ----------- DETENER TODOS LOS TIMERS -----------
+    const allTimerStops = [stopStopwatch, stopTabata, stopAmrap, stopEmom];
+    function stopAllTimers() {
+        allTimerStops.forEach(fn => fn());
+    }
+
+    // ----------- INTERVALOS PERSONALIZADOS -----------
+    let intervalTimer = null;
+    let isIntervalRunning = false;
+    let intervalTimeLeft = 0;
+    let intervalCurrentRound = 0;
+    let intervalPhase = 'work';
+
+    const intervalWorkInput = document.getElementById('interval-work');
+    const intervalRestInput = document.getElementById('interval-rest');
+    const intervalRoundsInput = document.getElementById('interval-rounds');
+    const intervalTimeDisplay = document.getElementById('interval-time');
+    const intervalRoundDisplay = document.getElementById('interval-round');
+    const intervalPhaseDisplay = document.getElementById('interval-phase');
+    const intervalStartBtn = document.getElementById('interval-start');
+    const intervalResetBtn = document.getElementById('interval-reset');
+
+    function updateIntervalDisplay() {
+        if (intervalTimeDisplay) intervalTimeDisplay.textContent = formatMMSS(intervalTimeLeft);
+        const total = parseInt(intervalRoundsInput.value) || 8;
+        if (intervalRoundDisplay) intervalRoundDisplay.textContent = `Ronda: ${intervalCurrentRound}/${total}`;
+        if (intervalPhaseDisplay) {
+            if (intervalCurrentRound === 0) {
+                intervalPhaseDisplay.textContent = 'Preparados';
+                intervalPhaseDisplay.className = 'tabata-phase';
+            } else {
+                intervalPhaseDisplay.textContent = intervalPhase === 'work' ? '¡Trabajo!' : 'Descanso';
+                intervalPhaseDisplay.className = 'tabata-phase ' + intervalPhase;
+            }
+        }
+    }
+
+    function startIntervalTimer() {
+        if (isIntervalRunning) { stopIntervalTimer(); return; }
+        stopAllTimers();
+        isIntervalRunning = true;
+        intervalStartBtn.textContent = 'Pausar';
+
+        const workTime = parseInt(intervalWorkInput.value) || 30;
+        const restTime = parseInt(intervalRestInput.value) || 10;
+        const totalRounds = parseInt(intervalRoundsInput.value) || 8;
+
+        intervalCurrentRound = 1;
+        intervalPhase = 'work';
+        intervalTimeLeft = workTime;
+
+        updateIntervalDisplay();
+        playStartSound();
+
+        intervalTimer = setInterval(() => {
+            if (intervalTimeLeft > 0) {
+                playCountdownBeep(intervalTimeLeft);
+                intervalTimeLeft--;
+                updateIntervalDisplay();
+            }
+            if (intervalTimeLeft === 0) {
+                playEndSound();
+                if (intervalPhase === 'work') {
+                    if (intervalCurrentRound >= totalRounds) { stopIntervalTimer(); return; }
+                    if (restTime > 0) {
+                        intervalPhase = 'rest';
+                        intervalTimeLeft = restTime;
+                        playPhaseStartSound('rest');
+                    } else {
+                        intervalCurrentRound++;
+                        intervalPhase = 'work';
+                        intervalTimeLeft = workTime;
+                        playPhaseStartSound('work');
+                    }
+                } else {
+                    if (intervalCurrentRound >= totalRounds) { stopIntervalTimer(); return; }
+                    intervalCurrentRound++;
+                    intervalPhase = 'work';
+                    intervalTimeLeft = workTime;
+                    playPhaseStartSound('work');
+                }
+                updateIntervalDisplay();
+            }
+        }, 1000);
+    }
+
+    function stopIntervalTimer() {
+        clearInterval(intervalTimer);
+        isIntervalRunning = false;
+        if (intervalStartBtn) intervalStartBtn.textContent = 'Iniciar';
+    }
+
+    function resetIntervalTimer() {
+        stopIntervalTimer();
+        intervalTimeLeft = 0;
+        intervalCurrentRound = 0;
+        intervalPhase = 'work';
+        updateIntervalDisplay();
+    }
+
+    allTimerStops.push(stopIntervalTimer);
+    if (intervalStartBtn) intervalStartBtn.addEventListener('click', startIntervalTimer);
+    if (intervalResetBtn) intervalResetBtn.addEventListener('click', resetIntervalTimer);
+
+    // ----------- DESCANSO PROGRAMADO -----------
+    let restTimerInterval = null;
+    let isRestTimerRunning = false;
+    let restTimerTimeLeft = 0;
+
+    const restTimerTimeDisplay = document.getElementById('rest-time');
+    const restTimerPhaseDisplay = document.getElementById('rest-phase');
+    const restTimerStartBtn = document.getElementById('rest-start');
+    const restTimerResetBtn = document.getElementById('rest-reset');
+
+    function updateRestTimerDisplay() {
+        if (restTimerTimeDisplay) restTimerTimeDisplay.textContent = formatMMSS(restTimerTimeLeft);
+    }
+
+    function startRestTimer() {
+        if (isRestTimerRunning) { stopRestTimer(); return; }
+        stopAllTimers();
+        isRestTimerRunning = true;
+        restTimerStartBtn.textContent = 'Pausar';
+
+        const min = parseInt(document.getElementById('rest-minutes').value) || 0;
+        const sec = parseInt(document.getElementById('rest-seconds').value) || 0;
+        restTimerTimeLeft = min * 60 + sec;
+
+        if (restTimerTimeLeft <= 0) { stopRestTimer(); return; }
+
+        updateRestTimerDisplay();
+        if (restTimerPhaseDisplay) {
+            restTimerPhaseDisplay.textContent = '¡Descanso!';
+            restTimerPhaseDisplay.className = 'tabata-phase rest';
+        }
+        playStartSound();
+
+        restTimerInterval = setInterval(() => {
+            if (restTimerTimeLeft > 0) {
+                playCountdownBeep(restTimerTimeLeft);
+                restTimerTimeLeft--;
+                updateRestTimerDisplay();
+            }
+            if (restTimerTimeLeft === 0) {
+                playEndSound();
+                stopRestTimer();
+            }
+        }, 1000);
+    }
+
+    function stopRestTimer() {
+        clearInterval(restTimerInterval);
+        isRestTimerRunning = false;
+        if (restTimerStartBtn) restTimerStartBtn.textContent = 'Iniciar';
+    }
+
+    function resetRestTimer() {
+        stopRestTimer();
+        restTimerTimeLeft = 0;
+        updateRestTimerDisplay();
+        if (restTimerPhaseDisplay) {
+            restTimerPhaseDisplay.textContent = 'Preparados';
+            restTimerPhaseDisplay.className = 'tabata-phase';
+        }
+    }
+
+    allTimerStops.push(stopRestTimer);
+    if (restTimerStartBtn) restTimerStartBtn.addEventListener('click', startRestTimer);
+    if (restTimerResetBtn) restTimerResetBtn.addEventListener('click', resetRestTimer);
+
+    // ----------- TEMPO TRAINER -----------
+    let tempoTimerInterval = null;
+    let isTempoRunning = false;
+    let tempoTimeLeft = 0;
+    let tempoCurrentPhase = 0;
+    let tempoCycleCount = 0;
+    const tempoPhaseNames = ['Bajada', 'Pausa Baja', 'Subida', 'Pausa Alta'];
+
+    const tempoPhase1Input = document.getElementById('tempo-phase1');
+    const tempoPhase2Input = document.getElementById('tempo-phase2');
+    const tempoPhase3Input = document.getElementById('tempo-phase3');
+    const tempoPhase4Input = document.getElementById('tempo-phase4');
+    const tempoTimeDisplay = document.getElementById('tempo-time');
+    const tempoRoundDisplay = document.getElementById('tempo-round');
+    const tempoPhaseDisplay = document.getElementById('tempo-phase');
+    const tempoStartBtn = document.getElementById('tempo-start');
+    const tempoResetBtn = document.getElementById('tempo-reset');
+
+    function getTempoPhases() {
+        return [
+            parseInt(tempoPhase1Input.value) || 0,
+            parseInt(tempoPhase2Input.value) || 0,
+            parseInt(tempoPhase3Input.value) || 0,
+            parseInt(tempoPhase4Input.value) || 0
+        ];
+    }
+
+    function updateTempoDisplay() {
+        if (tempoTimeDisplay) tempoTimeDisplay.textContent = formatMMSS(tempoTimeLeft);
+        if (tempoRoundDisplay) tempoRoundDisplay.textContent = `Ciclo: ${tempoCycleCount}`;
+        if (tempoPhaseDisplay) {
+            if (!isTempoRunning && tempoCycleCount === 0) {
+                tempoPhaseDisplay.textContent = 'Preparados';
+                tempoPhaseDisplay.className = 'tabata-phase';
+            } else {
+                tempoPhaseDisplay.textContent = tempoPhaseNames[tempoCurrentPhase] || '';
+                tempoPhaseDisplay.className = 'tabata-phase work';
+            }
+        }
+    }
+
+    function startTempoTimer() {
+        if (isTempoRunning) { stopTempoTimer(); return; }
+        stopAllTimers();
+        isTempoRunning = true;
+        tempoStartBtn.textContent = 'Pausar';
+
+        const phases = getTempoPhases();
+        tempoCycleCount = 1;
+        tempoCurrentPhase = 0;
+        while (tempoCurrentPhase < 4 && phases[tempoCurrentPhase] === 0) tempoCurrentPhase++;
+        if (tempoCurrentPhase >= 4) { stopTempoTimer(); return; }
+        tempoTimeLeft = phases[tempoCurrentPhase];
+
+        updateTempoDisplay();
+        playStartSound();
+
+        tempoTimerInterval = setInterval(() => {
+            if (tempoTimeLeft > 0) {
+                playCountdownBeep(tempoTimeLeft);
+                tempoTimeLeft--;
+                updateTempoDisplay();
+            }
+            if (tempoTimeLeft === 0) {
+                playEndSound();
+                tempoCurrentPhase++;
+                const p = getTempoPhases();
+                while (tempoCurrentPhase < 4 && p[tempoCurrentPhase] === 0) tempoCurrentPhase++;
+                if (tempoCurrentPhase >= 4) {
+                    tempoCurrentPhase = 0;
+                    tempoCycleCount++;
+                    while (tempoCurrentPhase < 4 && p[tempoCurrentPhase] === 0) tempoCurrentPhase++;
+                }
+                if (tempoCurrentPhase < 4) tempoTimeLeft = p[tempoCurrentPhase];
+                updateTempoDisplay();
+            }
+        }, 1000);
+    }
+
+    function stopTempoTimer() {
+        clearInterval(tempoTimerInterval);
+        isTempoRunning = false;
+        if (tempoStartBtn) tempoStartBtn.textContent = 'Iniciar';
+    }
+
+    function resetTempoTimer() {
+        stopTempoTimer();
+        tempoTimeLeft = 0;
+        tempoCurrentPhase = 0;
+        tempoCycleCount = 0;
+        updateTempoDisplay();
+    }
+
+    allTimerStops.push(stopTempoTimer);
+    if (tempoStartBtn) tempoStartBtn.addEventListener('click', startTempoTimer);
+    if (tempoResetBtn) tempoResetBtn.addEventListener('click', resetTempoTimer);
+
+    // ----------- CUENTA REGRESIVA SIMPLE -----------
+    let countdownTimerInterval = null;
+    let isCountdownRunning = false;
+    let countdownTimeLeft = 0;
+
+    const countdownTimeDisplay = document.getElementById('countdown-time');
+    const countdownStartBtn = document.getElementById('countdown-start');
+    const countdownResetBtn = document.getElementById('countdown-reset');
+
+    function updateCountdownDisplay() {
+        if (countdownTimeDisplay) countdownTimeDisplay.textContent = formatMMSS(countdownTimeLeft);
+    }
+
+    function startCountdownTimer() {
+        if (isCountdownRunning) { stopCountdownTimer(); return; }
+        stopAllTimers();
+        isCountdownRunning = true;
+        countdownStartBtn.textContent = 'Pausar';
+
+        const min = parseInt(document.getElementById('countdown-minutes').value) || 0;
+        const sec = parseInt(document.getElementById('countdown-seconds').value) || 0;
+        countdownTimeLeft = min * 60 + sec;
+
+        if (countdownTimeLeft <= 0) { stopCountdownTimer(); return; }
+
+        updateCountdownDisplay();
+        playStartSound();
+
+        countdownTimerInterval = setInterval(() => {
+            if (countdownTimeLeft > 0) {
+                playCountdownBeep(countdownTimeLeft);
+                countdownTimeLeft--;
+                updateCountdownDisplay();
+            }
+            if (countdownTimeLeft === 0) {
+                playEndSound();
+                stopCountdownTimer();
+            }
+        }, 1000);
+    }
+
+    function stopCountdownTimer() {
+        clearInterval(countdownTimerInterval);
+        isCountdownRunning = false;
+        if (countdownStartBtn) countdownStartBtn.textContent = 'Iniciar';
+    }
+
+    function resetCountdownTimer() {
+        stopCountdownTimer();
+        countdownTimeLeft = 0;
+        updateCountdownDisplay();
+    }
+
+    allTimerStops.push(stopCountdownTimer);
+    if (countdownStartBtn) countdownStartBtn.addEventListener('click', startCountdownTimer);
+    if (countdownResetBtn) countdownResetBtn.addEventListener('click', resetCountdownTimer);
+
+    // ----------- POMODORO DE ENTRENAMIENTO -----------
+    let pomodoroTimerInterval = null;
+    let isPomodoroRunning = false;
+    let pomodoroTimeLeft = 0;
+    let pomodoroCurrentRound = 0;
+    let pomodoroPhase = 'work';
+
+    const pomodoroWorkInput = document.getElementById('pomodoro-work');
+    const pomodoroRestInput = document.getElementById('pomodoro-rest');
+    const pomodoroTimeDisplay = document.getElementById('pomodoro-time');
+    const pomodoroRoundDisplay = document.getElementById('pomodoro-round');
+    const pomodoroPhaseDisplay = document.getElementById('pomodoro-phase');
+    const pomodoroStartBtn = document.getElementById('pomodoro-start');
+    const pomodoroResetBtn = document.getElementById('pomodoro-reset');
+
+    function updatePomodoroDisplay() {
+        if (pomodoroTimeDisplay) pomodoroTimeDisplay.textContent = formatMMSS(pomodoroTimeLeft);
+        if (pomodoroRoundDisplay) pomodoroRoundDisplay.textContent = `Ronda: ${pomodoroCurrentRound}`;
+        if (pomodoroPhaseDisplay) {
+            if (pomodoroCurrentRound === 0) {
+                pomodoroPhaseDisplay.textContent = 'Preparados';
+                pomodoroPhaseDisplay.className = 'tabata-phase';
+            } else {
+                pomodoroPhaseDisplay.textContent = pomodoroPhase === 'work' ? '¡Trabajo!' : 'Descanso';
+                pomodoroPhaseDisplay.className = 'tabata-phase ' + pomodoroPhase;
+            }
+        }
+    }
+
+    function startPomodoroTimer() {
+        if (isPomodoroRunning) { stopPomodoroTimer(); return; }
+        stopAllTimers();
+        isPomodoroRunning = true;
+        pomodoroStartBtn.textContent = 'Pausar';
+
+        const workTime = parseInt(pomodoroWorkInput.value) || 45;
+        const restTime = parseInt(pomodoroRestInput.value) || 15;
+
+        pomodoroCurrentRound = 1;
+        pomodoroPhase = 'work';
+        pomodoroTimeLeft = workTime;
+
+        updatePomodoroDisplay();
+        playStartSound();
+
+        pomodoroTimerInterval = setInterval(() => {
+            if (pomodoroTimeLeft > 0) {
+                playCountdownBeep(pomodoroTimeLeft);
+                pomodoroTimeLeft--;
+                updatePomodoroDisplay();
+            }
+            if (pomodoroTimeLeft === 0) {
+                playEndSound();
+                if (pomodoroPhase === 'work') {
+                    pomodoroPhase = 'rest';
+                    pomodoroTimeLeft = restTime;
+                    playPhaseStartSound('rest');
+                } else {
+                    pomodoroPhase = 'work';
+                    pomodoroTimeLeft = workTime;
+                    pomodoroCurrentRound++;
+                    playPhaseStartSound('work');
+                }
+                updatePomodoroDisplay();
+            }
+        }, 1000);
+    }
+
+    function stopPomodoroTimer() {
+        clearInterval(pomodoroTimerInterval);
+        isPomodoroRunning = false;
+        if (pomodoroStartBtn) pomodoroStartBtn.textContent = 'Iniciar';
+    }
+
+    function resetPomodoroTimer() {
+        stopPomodoroTimer();
+        pomodoroTimeLeft = 0;
+        pomodoroCurrentRound = 0;
+        pomodoroPhase = 'work';
+        updatePomodoroDisplay();
+    }
+
+    allTimerStops.push(stopPomodoroTimer);
+    if (pomodoroStartBtn) pomodoroStartBtn.addEventListener('click', startPomodoroTimer);
+    if (pomodoroResetBtn) pomodoroResetBtn.addEventListener('click', resetPomodoroTimer);
+
     // ----------- CREACIÓN DE SELECTORES DE TIEMPO -----------
     function createTimePicker(containerId, opts = {}) {
         const container = document.getElementById(containerId);
@@ -594,17 +1016,26 @@ document.addEventListener('DOMContentLoaded', function() {
         minutesId: 'amrap-minutes'
     });
 
+    // Para Descanso Programado (minutos y segundos)
+    createTimePicker('rest-time-picker', {
+        showHours: false,
+        showMinutes: true,
+        showSeconds: true,
+        minutesId: 'rest-minutes',
+        secondsId: 'rest-seconds'
+    });
+
+    // Para Cuenta Regresiva (minutos y segundos)
+    createTimePicker('countdown-time-picker', {
+        showHours: false,
+        showMinutes: true,
+        showSeconds: true,
+        minutesId: 'countdown-minutes',
+        secondsId: 'countdown-seconds'
+    });
+
     // ----------- BUSCADOR DE EJERCICIOS -----------
-    // Para ejercicios (ajusta el selector según tu estructura)
     // --- Lógica para cargar y filtrar ejercicios con drag & drop ---
-    let videos = [];
-    fetch('videos-list.json')
-        .then(res => res.json())
-        .then(data => {
-            videos = data;
-            cargarEjercicios();
-            activarDragDrop();
-        });
 
     function cargarEjercicios(filtro = '') {
         const lista = document.getElementById('lista-ejercicios');
